@@ -23,9 +23,11 @@
 - [x] Crear repositorio remoto en GitHub: `https://github.com/mariojoserodriguez/TuPartidaApp` y hacer push inicial.
 - [x] Extraer y estructurar el prototipo visual de Stitch (`prototype_stitch/`).
 - [x] Crear `checklist.md` con la hoja de ruta y decisiones de arquitectura.
+- [x] Crear `AGENTS.md` con el protocolo de estaciones de trabajo (PC Casa maestra vs satélites) y directrices.
 - [x] Renombrar en Google Cloud Console el proyecto a `TuPartidaApp` (`project-50b07764-c4ba-4320-b28`).
 - [x] Habilitar Firestore Database en modo Nativo (Región `nam5` - Free Tier).
 - [x] Registrar Web App en Firebase y configurar variables en `.env`.
+- [x] Diseñar e implementar `firestore.rules` con el subagente especialista y desplegar a Firebase Cloud.
 
 ---
 
