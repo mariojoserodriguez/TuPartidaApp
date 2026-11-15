@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary-fixed": "#2a1700", "secondary-fixed": "#ffddb8", "on-primary": "#1d00a5", "primary-fixed-dim": "#c3c0ff", "on-tertiary-container": "#67f4b7", "surface-dim": "#0b1326", "tertiary-fixed-dim": "#4edea3", "on-secondary-container": "#5b3800", "surface-bright": "#31394d", "inverse-on-surface": "#283044", "surface-container": "#171f33", "background": "#0b1326", "surface": "#0b1326", "primary": "#c3c0ff", "on-tertiary-fixed": "#002113", "error": "#ffb4ab", "on-error": "#690005", "on-tertiary": "#003824", "on-tertiary-fixed-variant": "#005236", "inverse-surface": "dae2fd", "tertiary-container": "#006e4b", "on-surface-variant": "#c7c4d8", "outline": "#918fa1", "on-background": "#dae2fd", "surface-container-high": "#222a3d", "surface-container-highest": "#2d3449", "on-primary-fixed": "#0f0069", "primary-container": "#4f46e5", "surface-variant": "#2d3449", "on-error-container": "#ffdad6", "on-secondary": "#472a00", "error-container": "#93000a", "on-primary-fixed-variant": "#3323cc", "outline-variant": "#464555", "tertiary": "#4edea3", "secondary-container": "#ee9800", "secondary": "#ffb95f", "tertiary-fixed": "#6ffbbe", "surface-container-lowest": "#060e20", "primary-fixed": "#e2dfff", "secondary-fixed-dim": "#ffb95f", "surface-container-low": "#131b2e", "on-surface": "#dae2fd", "inverse-primary": "#4d44e3", "surface-tint": "#c3c0ff", "on-secondary-fixed-variant": "#653e00", "on-primary-container": "#dad7ff" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xl": "1.5rem", "space-md": "0.75rem", "margin": "1rem", "space-sm": "0.5rem", "space-lg": "1rem", "space-xs": "0.25rem", "gutter": "0.75rem" }, fontFamily: { "label-md": ["Space Grotesk"], "headline-xl": ["Outfit"], "headline-md": ["Outfit"], "body-lg": ["Plus Jakarta Sans"], "headline-lg": ["Outfit"], "headline-xl-mobile": ["Outfit"], "body-md": ["Plus Jakarta Sans"], "label-number-grid": ["Space Grotesk"], "label-number-xl": ["Space Grotesk"], "headline-sm": ["Outfit"], "label-sm": ["Space Grotesk"], "body-sm": ["Plus Jakarta Sans"] }, fontSize: { "label-md": ["13px", { lineHeight: "18px", letterSpacing: "0.04em", fontWeight: "600" }], "headline-xl": ["40px", { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "800" }], "headline-md": ["22px", { lineHeight: "28px", fontWeight: "700" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "500" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "700" }], "headline-xl-mobile": ["32px", { lineHeight: "38px", letterSpacing: "-0.02em", fontWeight: "800" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "label-number-grid": ["20px", { lineHeight: "24px", fontWeight: "700" }], "label-number-xl": ["36px", { lineHeight: "40px", letterSpacing: "-0.03em", fontWeight: "700" }], "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "600" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "600" }], "body-sm": ["12px", { lineHeight: "16px", fontWeight: "500" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm"><img alt="Bingo Live Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/ALJJyrACxWC4k82_Y_zbqKON4qNCc-zv_Q6DOgWULsUkJ0DYh1GuQaxm45QsdhOpw7rwn8c9sAKBVSjwIQbjPaYeOkspMCvTZlBxeFvx-lgRNZIOhMJw4UkJLLuwgBs34Xr9XxuMsVuc1JwLA65WmyXTdGrxblat2fokc0JQr8b4eiSN5pDITEdoS5jH9854HBYSIVS81XgWyjJg2EN5voIDDRD1LgbcAZooejIhz-HUANoQmQ"/><div class="flex flex-col"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight leading-none">Bingo Live</span><span class="font-label-sm text-label-sm text-primary flex items-center gap-1 mt-0.5">Panel Host</span></div></div><div class="flex items-center gap-space-sm"><div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container/60 text-error font-label-sm text-label-sm"><span class="w-2 h-2 rounded-full bg-error animate-pulse"></span><span>EN VIVO</span></div><div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high text-secondary font-label-md text-label-md"><span class="material-symbols-outlined text-[16px]">monetization_on</span><span>2,450</span></div><div class="relative flex items-center justify-center"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpe45CE48U3fBt_m7FBKCT8ghIYmnLX_c4DX7KrnbcdiJqbXiC1VN4ujr16sczC7hawy6xRQQcEULc477VuhLtsKlxwUrpm4jCjmJml0QGx8BgfEwVGt_Ji2hfrpe4Z0JrNSLd0Cc22LDDgGe_2vWgHUVWLRRMnN-En_65ZVL5mSmZ6-X6gffS0-pZFMWQ7qqGSCzGg6k8oWhI0O2iFtvibYKaAzgx4f53bUjGH3qi"/></div></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full space-y-4 px-margin">
+<!-- Host Meta & Room Status Bar -->
+<div class="w-full bg-surface-container-high rounded-xl p-space-md shadow-md">
+<div class="flex items-center justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-primary-container text-on-primary-container">
+<span class="material-symbols-outlined text-[18px]">broadcast_on_personal</span>
+</span>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface">Sala BG-8492</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded-full bg-tertiary-container/40 text-tertiary font-label-sm text-label-sm">
+              HOST VIP
+            </span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-ping"></span>
+            42 Jugadores en vivo
+          </span>
+</div>
+</div>
+<!-- Quick Audio Mic Status Toggle -->
+<button class="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-surface-container-highest text-tertiary active:scale-95 transition-transform" id="mic-toggle-btn" onclick="toggleMic()">
+<span class="material-symbols-outlined text-[18px]" id="mic-icon">mic</span>
+<span class="font-label-sm text-label-sm" id="mic-label">En vivo</span>
+</button>
+</div>
+<!-- Game Mode Pattern Selector (Horizontal / Cartón Lleno) -->
+<div class="w-full bg-surface-container rounded-lg p-2.5 flex items-center justify-between gap-space-xs">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">flag_circle</span>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant leading-none">MODO DE JUEGO ACTIVO</span>
+<span class="font-body-md text-body-md text-secondary font-bold truncate">Línea Horizontal / Pleno</span>
+</div>
+</div>
+<button class="px-2 py-1 rounded-md bg-surface-container-highest text-on-surface font-label-sm text-label-sm flex items-center gap-1 shadow-sm active:opacity-80">
+<span>Cambiar</span>
+<span class="material-symbols-outlined text-[14px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Live Claim Alert Banner (Bandeja de Reclamo) -->
+<div class="w-full rounded-xl bg-gradient-to-r from-secondary-container to-secondary p-space-sm shadow-xl flex items-center justify-between gap-space-sm text-on-secondary-container animate-pulse">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-9 h-9 rounded-full bg-surface-container-lowest/30 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-secondary-fixed text-[22px]" style="font-variation-settings: 'FILL' 1;">campaign</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-secondary-fixed font-black leading-none">¡ALERTA DE BINGO!</span>
+<span class="font-body-sm text-body-sm text-on-secondary-container truncate mt-0.5">
+<strong class="text-on-secondary-fixed">@Lucia_Gomez</strong> reclama en Cartón <span class="font-label-md text-label-md">#04</span>
+</span>
+</div>
+</div>
+<button class="shrink-0 px-3 py-1.5 rounded-lg bg-surface-container-lowest text-secondary font-label-md text-label-md shadow-md active:scale-95 transition-transform" onclick="openVerificationModal()">
+      Verificar
+    </button>
+</div>
+<!-- Feature Hero: La Tómbola Digital -->
+<div class="relative w-full rounded-2xl bg-surface-container-low p-space-lg flex flex-col items-center justify-center overflow-hidden shadow-2xl">
+<!-- Ambient Radial Glow -->
+<div class="absolute inset-0 bg-gradient-to-b from-primary-container/20 via-transparent to-secondary-container/10 pointer-events-none"></div>
+<div class="absolute -top-12 -left-12 w-40 h-40 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-12 -right-12 w-40 h-40 bg-secondary/20 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex items-center justify-between w-full relative z-10 mb-2">
+<div class="flex items-center gap-1.5 text-on-surface-variant font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary">sensors</span>
+<span>TÓMBOLA EN DIRECTO</span>
+</div>
+<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container-highest text-primary font-label-sm text-label-sm">
+<span>Ronda 1</span>
+<span>•</span>
+<span class="text-secondary font-bold">Pozo: $850.000</span>
+</div>
+</div>
+<!-- Volumetric Glowing Ball Centerpiece -->
+<div class="relative my-3 flex items-center justify-center">
+<!-- Outer Soundwave Pulse Rings -->
+<div class="absolute w-36 h-36 rounded-full bg-secondary/15 animate-ping pointer-events-none"></div>
+<div class="absolute w-44 h-44 rounded-full bg-primary/10 blur-md pointer-events-none"></div>
+<!-- 3D Specular Ball -->
+<div class="relative w-28 h-28 rounded-full bg-gradient-to-br from-secondary via-secondary-container to-amber-700 shadow-[0_12px_32px_rgba(238,152,0,0.45)] flex flex-col items-center justify-center text-on-secondary-fixed transition-transform duration-300 transform hover:scale-105" id="active-ball">
+<!-- Top Glass Specular Reflection Highlight -->
+<div class="absolute top-2 w-14 h-6 rounded-full bg-white/40 blur-[1px]"></div>
+<span class="font-headline-sm text-headline-sm uppercase tracking-widest text-on-secondary-fixed drop-shadow-sm leading-none mt-1">B</span>
+<span class="font-label-number-xl text-label-number-xl text-on-secondary-fixed font-black tracking-tight leading-none" id="ball-number">12</span>
+</div>
+</div>
+<div class="text-center relative z-10 mb-1">
+<span class="font-headline-sm text-headline-sm text-on-surface">Última Balota Cantada</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">Transmitida con sincronización a 42 dispositivos</p>
+</div>
+<!-- Recent Balls History Horizontal Rail -->
+<div class="w-full mt-4 pt-3 border-t-0 bg-surface-container/60 rounded-xl p-2.5 flex flex-col">
+<div class="flex items-center justify-between mb-2 px-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-bold">ÚLTIMAS 5 BALOTAS</span>
+<span class="font-label-sm text-label-sm text-tertiary">Secuencia OK</span>
+</div>
+<div class="flex items-center justify-between gap-2 overflow-x-auto py-1 px-0.5">
+<!-- Ball 1 -->
+<div class="flex flex-col items-center gap-1 shrink-0">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest shadow-inner flex flex-col items-center justify-center">
+<span class="font-label-sm text-label-sm text-tertiary leading-none">G</span>
+<span class="font-label-md text-label-md text-on-surface leading-none font-bold">54</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">-4</span>
+</div>
+<!-- Ball 2 -->
+<div class="flex flex-col items-center gap-1 shrink-0">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest shadow-inner flex flex-col items-center justify-center">
+<span class="font-label-sm text-label-sm text-primary leading-none">I</span>
+<span class="font-label-md text-label-md text-on-surface leading-none font-bold">19</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">-3</span>
+</div>
+<!-- Ball 3 -->
+<div class="flex flex-col items-center gap-1 shrink-0">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest shadow-inner flex flex-col items-center justify-center">
+<span class="font-label-sm text-label-sm text-error leading-none">N</span>
+<span class="font-label-md text-label-md text-on-surface leading-none font-bold">33</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">-2</span>
+</div>
+<!-- Ball 4 -->
+<div class="flex flex-col items-center gap-1 shrink-0">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest shadow-inner flex flex-col items-center justify-center">
+<span class="font-label-sm text-label-sm text-secondary leading-none">O</span>
+<span class="font-label-md text-label-md text-on-surface leading-none font-bold">71</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">-1</span>
+</div>
+<!-- Ball 5 (Current) -->
+<div class="flex flex-col items-center gap-1 shrink-0">
+<div class="w-10 h-10 rounded-full bg-secondary text-on-secondary-fixed shadow-md flex flex-col items-center justify-center font-bold">
+<span class="font-label-sm text-label-sm leading-none">B</span>
+<span class="font-label-md text-label-md leading-none">12</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary font-bold">Actual</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Operational Quick Action Controls -->
+<div class="w-full bg-surface-container rounded-xl p-space-md shadow-md space-y-3">
+<!-- Big Draw Next Ball Button -->
+<button class="w-full py-4 px-space-md rounded-xl bg-gradient-to-r from-secondary-container via-secondary to-amber-500 text-on-secondary-fixed font-headline-md text-headline-md font-extrabold flex items-center justify-center gap-2 shadow-xl active:translate-y-0.5 transition-all" id="draw-button" onclick="extraerNumero()">
+<span class="material-symbols-outlined text-[26px]" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+<span>EXTRAER SIGUIENTE NÚMERO</span>
+</button>
+<!-- Secondary Operator Controls Row -->
+<div class="grid grid-cols-2 gap-space-sm pt-1">
+<!-- Auto Draw Toggle Mode -->
+<div class="bg-surface-container-high rounded-lg p-2.5 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface font-bold">Modo Auto</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cada 8 seg</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" id="auto-toggle" onchange="toggleAutoDraw(this)" type="checkbox"/>
+<div class="w-10 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-tertiary"></div>
+</label>
+</div>
+<!-- Pause Game Button -->
+<button class="bg-surface-container-high hover:bg-surface-container-highest rounded-lg p-2.5 flex items-center justify-center gap-1.5 text-error active:scale-95 transition-transform" id="pause-btn" onclick="togglePauseGame()">
+<span class="material-symbols-outlined text-[20px]" id="pause-icon">pause_circle</span>
+<span class="font-label-md text-label-md font-bold" id="pause-text">Pausar Tómbola</span>
+</button>
+</div>
+</div>
+<!-- Master Board (Tablero Maestro B-I-N-G-O 75 Números) -->
+<div class="w-full bg-surface-container rounded-xl p-space-md shadow-md space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[22px]">grid_on</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Tablero Maestro</span>
+</div>
+<div class="px-2.5 py-1 rounded-md bg-surface-container-highest text-secondary font-label-md text-label-md font-bold">
+<span id="called-count">24</span> / 75 extraídas
+      </div>
+</div>
+<!-- Legend Indicator -->
+<div class="flex items-center gap-4 text-on-surface-variant text-label-sm font-label-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+<span>Cantado</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-surface-container-highest"></span>
+<span>Pendiente</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary"></span>
+<span>Último (B-12)</span>
+</div>
+</div>
+<!-- The 75-Number Master Matrix (5 Rows for B, I, N, G, O) -->
+<div class="w-full space-y-1.5 pt-1">
+<!-- Row B (1-15) -->
+<div class="flex items-center gap-1 w-full">
+<span class="w-6 h-6 rounded flex items-center justify-center bg-primary text-on-primary font-label-md text-label-md font-black shrink-0">B</span>
+<div class="grid grid-cols-15 gap-0.5 flex-1 min-w-0" style="display: grid; grid-template-columns: repeat(15, minmax(0, 1fr));">
+<!-- 1 to 15 -->
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">1</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">2</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">3</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">4</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">5</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">6</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">7</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">8</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">9</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">10</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">11</div>
+<div class="h-6 rounded-sm bg-tertiary text-on-tertiary-fixed font-black flex items-center justify-center font-label-sm text-label-sm shadow-sm scale-110">12</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">13</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">14</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">15</div>
+</div>
+</div>
+<!-- Row I (16-30) -->
+<div class="flex items-center gap-1 w-full">
+<span class="w-6 h-6 rounded flex items-center justify-center bg-primary-container text-on-primary-container font-label-md text-label-md font-black shrink-0">I</span>
+<div class="grid grid-cols-15 gap-0.5 flex-1 min-w-0" style="display: grid; grid-template-columns: repeat(15, minmax(0, 1fr));">
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">16</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">17</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">18</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">19</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">20</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">21</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">22</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">23</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">24</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">25</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">26</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">27</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">28</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">29</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">30</div>
+</div>
+</div>
+<!-- Row N (31-45) -->
+<div class="flex items-center gap-1 w-full">
+<span class="w-6 h-6 rounded flex items-center justify-center bg-primary text-on-primary font-label-md text-label-md font-black shrink-0">N</span>
+<div class="grid grid-cols-15 gap-0.5 flex-1 min-w-0" style="display: grid; grid-template-columns: repeat(15, minmax(0, 1fr));">
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">31</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">32</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">33</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">34</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">35</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">36</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">37</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">38</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">39</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">40</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">41</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">42</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">43</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">44</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">45</div>
+</div>
+</div>
+<!-- Row G (46-60) -->
+<div class="flex items-center gap-1 w-full">
+<span class="w-6 h-6 rounded flex items-center justify-center bg-primary-container text-on-primary-container font-label-md text-label-md font-black shrink-0">G</span>
+<div class="grid grid-cols-15 gap-0.5 flex-1 min-w-0" style="display: grid; grid-template-columns: repeat(15, minmax(0, 1fr));">
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">46</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">47</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">48</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">49</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">50</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">51</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">52</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">53</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">54</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">55</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">56</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">57</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">58</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">59</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">60</div>
+</div>
+</div>
+<!-- Row O (61-75) -->
+<div class="flex items-center gap-1 w-full">
+<span class="w-6 h-6 rounded flex items-center justify-center bg-primary text-on-primary font-label-md text-label-md font-black shrink-0">O</span>
+<div class="grid grid-cols-15 gap-0.5 flex-1 min-w-0" style="display: grid; grid-template-columns: repeat(15, minmax(0, 1fr));">
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">61</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">62</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">63</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">64</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">65</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">66</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">67</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">68</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">69</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">70</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">71</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">72</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">73</div>
+<div class="h-6 rounded-sm bg-secondary text-on-secondary-fixed flex items-center justify-center font-label-sm text-label-sm font-bold">74</div>
+<div class="h-6 rounded-sm bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-sm text-label-sm">75</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sponsor Broadcast & Room Announcement Controls -->
+<div class="w-full bg-surface-container rounded-xl p-space-md shadow-md space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">campaign</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Aviso del Patrocinador</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Banner en vivo</span>
+</div>
+<!-- Quick Message Selector & Sender -->
+<div class="flex flex-col gap-2">
+<div class="relative">
+<input class="w-full bg-surface-container-high rounded-xl py-2.5 pl-3 pr-10 text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-primary/60" id="sponsor-input" type="text" value="¡Quedan pocas balotas para la línea! 🎁"/>
+<button class="absolute right-1.5 top-1.5 p-1.5 rounded-lg bg-primary-container text-on-primary-container flex items-center justify-center active:scale-95 transition-transform" onclick="sendAnnouncement()">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+<!-- Quick Preset Tags -->
+<div class="flex items-center gap-1.5 overflow-x-auto pb-1">
+<button class="shrink-0 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface" onclick="setAnnouncement('¡Atentos al cartón lleno! 🔥')">
+          Cartón Lleno 🔥
+        </button>
+<button class="shrink-0 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface" onclick="setAnnouncement('¡Premio doble en esta ronda! 💎')">
+          Premio Doble 💎
+        </button>
+<button class="shrink-0 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm hover:text-on-surface" onclick="setAnnouncement('¡Últimos 5 segundos de espera! ⏳')">
+          Tiempo ⏳
+        </button>
+</div>
+</div>
+</div>
+<!-- Verification Modal Popup (Simulated Interactive) -->
+<div class="fixed inset-0 z-50 bg-surface-container-lowest/80 backdrop-blur-sm flex items-end justify-center hidden p-margin" id="verify-modal">
+<div class="w-full bg-surface-container-high rounded-2xl p-space-lg shadow-2xl space-y-4 max-w-sm mb-16 animate-bounce-short">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[24px]">verified</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Validar Cartón #04</span>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface" onclick="closeVerificationModal()">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<div class="bg-surface-container rounded-xl p-3 flex flex-col gap-2">
+<div class="flex items-center justify-between text-body-sm font-body-sm text-on-surface-variant">
+<span>Jugador: <strong class="text-on-surface">@Lucia_Gomez</strong></span>
+<span class="text-tertiary font-bold">5/5 Línea OK</span>
+</div>
+<div class="grid grid-cols-5 gap-1.5 text-center font-label-md text-label-md">
+<div class="p-1 rounded bg-secondary text-on-secondary-fixed font-bold">B-12</div>
+<div class="p-1 rounded bg-secondary text-on-secondary-fixed font-bold">I-19</div>
+<div class="p-1 rounded bg-secondary text-on-secondary-fixed font-bold">N-33</div>
+<div class="p-1 rounded bg-secondary text-on-secondary-fixed font-bold">G-54</div>
+<div class="p-1 rounded bg-secondary text-on-secondary-fixed font-bold">O-71</div>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary flex items-center justify-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+          Línea Horizontal Validada en Sistema
+        </span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<button class="w-full py-2.5 rounded-xl bg-surface-container-highest text-error font-label-md text-label-md font-bold active:scale-95 transition-transform" onclick="rejectBingo()">
+          Rechazar
+        </button>
+<button class="w-full py-2.5 rounded-xl bg-tertiary-container text-on-tertiary-container font-label-md text-label-md font-bold active:scale-95 transition-transform" onclick="confirmBingo()">
+          Declarar Ganador 🎉
+        </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Client-side Interactive Script -->
+<script>
+  let autoDrawInterval = null;
+  let isPaused = false;
+  let micActive = true;
+  let counter = 24;
+
+  const balls = [
+    { letter: 'B', num: 7 },
+    { letter: 'I', num: 23 },
+    { letter: 'N', num: 39 },
+    { letter: 'G', num: 58 },
+    { letter: 'O', num: 66 },
+    { letter: 'B', num: 4 },
+    { letter: 'I', num: 28 }
+  ];
+
+  function toggleMic() {
+    micActive = !micActive;
+    const icon = document.getElementById('mic-icon');
+    const label = document.getElementById('mic-label');
+    const btn = document.getElementById('mic-toggle-btn');
+    if (micActive) {
+      icon.innerText = 'mic';
+      label.innerText = 'En vivo';
+      btn.className = 'flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-surface-container-highest text-tertiary active:scale-95 transition-transform';
+    } else {
+      icon.innerText = 'mic_off';
+      label.innerText = 'Silenciado';
+      btn.className = 'flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-surface-container-highest text-error active:scale-95 transition-transform';
+    }
+  }
+
+  function extraerNumero() {
+    const ballEl = document.getElementById('active-ball');
+    const numEl = document.getElementById('ball-number');
+    const counterEl = document.getElementById('called-count');
+    
+    // Quick spin & scale pulse animation
+    ballEl.classList.add('scale-125', 'rotate-12');
+    setTimeout(() => {
+      const next = balls[Math.floor(Math.random() * balls.length)];
+      numEl.innerText = next.num;
+      ballEl.querySelector('span:first-child').innerText = next.letter;
+      ballEl.classList.remove('scale-125', 'rotate-12');
+      if (counter < 75) {
+        counter++;
+        counterEl.innerText = counter;
+      }
+    }, 200);
+  }
+
+  function toggleAutoDraw(checkbox) {
+    if (checkbox.checked) {
+      autoDrawInterval = setInterval(() => {
+        if (!isPaused) {
+          extraerNumero();
+        }
+      }, 8000);
+    } else {
+      clearInterval(autoDrawInterval);
+      autoDrawInterval = null;
+    }
+  }
+
+  function togglePauseGame() {
+    isPaused = !isPaused;
+    const pauseText = document.getElementById('pause-text');
+    const pauseIcon = document.getElementById('pause-icon');
+    const drawBtn = document.getElementById('draw-button');
+
+    if (isPaused) {
+      pauseText.innerText = 'Reanudar Juego';
+      pauseIcon.innerText = 'play_arrow';
+      drawBtn.classList.add('opacity-50', 'pointer-events-none');
+    } else {
+      pauseText.innerText = 'Pausar Tómbola';
+      pauseIcon.innerText = 'pause_circle';
+      drawBtn.classList.remove('opacity-50', 'pointer-events-none');
+    }
+  }
+
+  function setAnnouncement(msg) {
+    document.getElementById('sponsor-input').value = msg;
+  }
+
+  function sendAnnouncement() {
+    const input = document.getElementById('sponsor-input');
+    if (!input.value.trim()) return;
+    const original = input.value;
+    input.value = '✓ Mensaje enviado a todos los jugadores';
+    setTimeout(() => {
+      input.value = original;
+    }, 2000);
+  }
+
+  function openVerificationModal() {
+    document.getElementById('verify-modal').classList.remove('hidden');
+  }
+
+  function closeVerificationModal() {
+    document.getElementById('verify-modal').classList.add('hidden');
+  }
+
+  function confirmBingo() {
+    alert('¡Ganador confirmado! Notificación enviada a la sala y premio acreditado.');
+    closeVerificationModal();
+  }
+
+  function rejectBingo() {
+    alert('Reclamo descartado por el anfitrión.');
+    closeVerificationModal();
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-secondary bg-surface-container-high/60"><div class="grid grid-cols-4 items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-0.5 h-12 rounded-xl text-on-surface-variant hover:text-on-surface transition-colors" data-path="salas" href="#"><span class="material-symbols-outlined text-[22px]">view_comfy</span><span class="font-label-sm text-label-sm">Salas</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 h-12 rounded-xl transition-colors text-secondary bg-surface-container-high/60" data-path="panel-host" href="#"><span class="material-symbols-outlined text-[22px]">podium</span><span class="font-label-sm text-label-sm">Panel Host</span></a><a class="flex flex-col items-center justify-center gap-0.5 h-12 rounded-xl text-on-surface-variant hover:text-on-surface transition-colors" data-path="mi-carton" href="#"><span class="material-symbols-outlined text-[22px]">casino</span><span class="font-label-sm text-label-sm">Mi Cartón</span></a><a class="flex flex-col items-center justify-center gap-0.5 h-12 rounded-xl text-on-surface-variant hover:text-on-surface transition-colors" data-path="premios" href="#"><span class="material-symbols-outlined text-[22px]">military_tech</span><span class="font-label-sm text-label-sm">Premios</span></a></div></nav></body></html>

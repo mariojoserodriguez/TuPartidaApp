@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&amp;family=Plus+Jakarta+Sans:wght@500;600;700&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "on-secondary-fixed": "#2a1700", "secondary-fixed": "#ffddb8", "on-primary": "#1d00a5", "primary-fixed-dim": "#c3c0ff", "on-tertiary-container": "#67f4b7", "surface-dim": "#0b1326", "tertiary-fixed-dim": "#4edea3", "on-secondary-container": "#5b3800", "surface-bright": "#31394d", "inverse-on-surface": "#283044", "surface-container": "#171f33", "background": "#0b1326", "surface": "#0b1326", "primary": "#c3c0ff", "on-tertiary-fixed": "#002113", "error": "#ffb4ab", "on-error": "#690005", "on-tertiary": "#003824", "on-tertiary-fixed-variant": "#005236", "inverse-surface": "#dae2fd", "tertiary-container": "#006e4b", "on-surface-variant": "#c7c4d8", "outline": "#918fa1", "on-background": "#dae2fd", "surface-container-high": "#222a3d", "surface-container-highest": "#2d3449", "on-primary-fixed": "#0f0069", "primary-container": "#4f46e5", "surface-variant": "#2d3449", "on-error-container": "#ffdad6", "on-secondary": "#472a00", "error-container": "#93000a", "on-primary-fixed-variant": "#3323cc", "outline-variant": "#464555", "tertiary": "#4edea3", "secondary-container": "#ee9800", "secondary": "#ffb95f", "tertiary-fixed": "#6ffbbe", "surface-container-lowest": "#060e20", "primary-fixed": "#e2dfff", "secondary-fixed-dim": "#ffb95f", "surface-container-low": "#131b2e", "on-surface": "#dae2fd", "inverse-primary": "#4d44e3", "surface-tint": "#c3c0ff", "on-secondary-fixed-variant": "#653e00", "on-primary-container": "#dad7ff" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-xl": "1.5rem", "space-md": "0.75rem", "margin": "1rem", "space-sm": "0.5rem", "space-lg": "1rem", "space-xs": "0.25rem", "gutter": "0.75rem" }, fontFamily: { "label-md": ["Space Grotesk"], "headline-xl": ["Outfit"], "headline-md": ["Outfit"], "body-lg": ["Plus Jakarta Sans"], "headline-lg": ["Outfit"], "headline-xl-mobile": ["Outfit"], "body-md": ["Plus Jakarta Sans"], "label-number-grid": ["Space Grotesk"], "label-number-xl": ["Space Grotesk"], "headline-sm": ["Outfit"], "label-sm": ["Space Grotesk"], "body-sm": ["Plus Jakarta Sans"] }, fontSize: { "label-md": ["13px", { lineHeight: "18px", letterSpacing: "0.04em", fontWeight: "600" }], "headline-xl": ["40px", { lineHeight: "48px", letterSpacing: "-0.02em", fontWeight: "800" }], "headline-md": ["22px", { lineHeight: "28px", fontWeight: "700" }], "body-lg": ["16px", { lineHeight: "24px", fontWeight: "500" }], "headline-lg": ["28px", { lineHeight: "34px", letterSpacing: "-0.01em", fontWeight: "700" }], "headline-xl-mobile": ["32px", { lineHeight: "38px", letterSpacing: "-0.02em", fontWeight: "800" }], "body-md": ["14px", { lineHeight: "20px", fontWeight: "500" }], "label-number-grid": ["20px", { lineHeight: "24px", fontWeight: "700" }], "label-number-xl": ["36px", { lineHeight: "40px", letterSpacing: "-0.03em", fontWeight: "700" }], "headline-sm": ["18px", { lineHeight: "24px", fontWeight: "600" }], "label-sm": ["11px", { lineHeight: "14px", letterSpacing: "0.05em", fontWeight: "600" }], "body-sm": ["12px", { lineHeight: "16px", fontWeight: "500" }] } } } }</script><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background font-body-md text-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.1)]"><div class="h-16 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary-container via-primary to-secondary flex items-center justify-center shadow-lg shadow-primary-container/20 ring-1 ring-white/10"><span class="material-symbols-outlined text-[20px] text-surface-container-lowest">sports_esports</span></div><div class="flex flex-col"><div class="flex items-center gap-1.5"><span class="font-headline-sm text-headline-sm text-on-surface tracking-tight leading-none">SocialPlay</span><span class="px-1.5 py-0.2 rounded bg-primary-container/40 text-primary font-label-sm text-[10px] leading-tight font-bold tracking-wider">CLUB</span></div><div class="flex items-center gap-1.5 mt-0.5"><span class="w-1.5 h-1.5 rounded-full bg-tertiary animate-pulse"></span><span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Bingo &amp; Rifas en Vivo</span></div></div></div><div class="flex items-center gap-2"><div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-high/80 text-secondary font-label-md text-label-md ring-1 ring-white/5"><span class="material-symbols-outlined text-[16px]">monetization_on</span><span>2,450</span></div><a class="relative flex items-center justify-center" data-path="perfil" href="#"><img alt="Avatar Jugador" class="w-8 h-8 rounded-full object-cover ring-2 ring-tertiary/60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpe45CE48U3fBt_m7FBKCT8ghIYmnLX_c4DX7KrnbcdiJqbXiC1VN4ujr16sczC7hawy6xRQQcEULc477VuhLtsKlxwUrpm4jCjmJml0QGx8BgfEwVGt_Ji2hfrpe4Z0JrNSLd0Cc22LDDgGe_2vWgHUVWLRRMnN-En_65ZVL5mSmZ6-X6gffS0-pZFMWQ7qqGSCzGg6k8oWhI0O2iFtvibYKaAzgx4f53bUjGH3qi"/><span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-tertiary ring-2 ring-surface-container-lowest"></span></a></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full px-margin pb-8 space-y-5">
+<!-- 1. Hero Bienvenida & Toggle de Modo -->
+<section class="flex flex-col gap-3 pt-1">
+<div class="flex items-center justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface tracking-tight">¡Hola, Carlos!</span>
+<span class="text-headline-md animate-bounce inline-block">👋</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">¿Qué jugamos hoy en el vecindario?</p>
+</div>
+<div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-high shadow-md">
+<span class="material-symbols-outlined text-secondary text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-label-md text-label-md text-secondary">4.9</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">(12)</span>
+</div>
+</div>
+<!-- Toggle Píldora de Modo -->
+<div class="p-1 rounded-2xl bg-surface-container-lowest shadow-inner flex flex-col gap-2">
+<div class="grid grid-cols-2 gap-1 p-0.5" id="modeSelector">
+<button class="relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl transition-all duration-300 font-label-md text-label-md bg-surface-container-high text-on-surface shadow-sm" id="btnAmistoso" onclick="switchMode('amistoso')">
+<span class="text-[15px]">🎉</span>
+<span class="font-bold tracking-tight">Amistoso</span>
+<span class="px-1.5 py-0.2 rounded-full bg-tertiary-container/40 text-tertiary font-label-sm text-[9px] uppercase font-bold">Gratis</span>
+</button>
+<button class="relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl transition-all duration-300 font-label-md text-label-md text-on-surface-variant hover:text-on-surface" id="btnProFondos" onclick="switchMode('profondos')">
+<span class="text-[15px]">🎗️</span>
+<span class="font-bold tracking-tight">Pro-Fondos</span>
+<span class="px-1.5 py-0.2 rounded-full bg-secondary-container/30 text-secondary font-label-sm text-[9px] uppercase font-bold">Causas</span>
+</button>
+</div>
+<div class="px-3 pb-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary flex-shrink-0" id="modeIcon">volunteer_activism</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate" id="modeDescription">
+          Juega sin costo con amigos, familia y vecinos en mesas privadas o abiertas.
+        </p>
+</div>
+</div>
+</section>
+<!-- 2. Acceso Rápido por Código PIN & Crear Sala -->
+<section class="p-3.5 rounded-2xl bg-surface-container shadow-md flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">pin</span>
+<span class="font-label-md text-label-md text-on-surface">Unirse con Código PIN</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">6 dígitos</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="relative flex-1">
+<input class="w-full h-12 px-3.5 rounded-xl bg-surface-container-high text-on-surface font-label-number-grid text-label-number-grid tracking-widest placeholder:text-outline/40 placeholder:font-body-md placeholder:tracking-normal focus:outline-none focus:ring-0 focus:bg-surface-container-highest uppercase text-center" id="pinInput" maxlength="6" placeholder="Ej. 748-291" type="text"/>
+<button class="absolute right-2 top-2 w-8 h-8 rounded-lg bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors" onclick="scanQRModal()" title="Escanear QR">
+<span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
+</button>
+</div>
+<button class="h-12 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md font-bold flex items-center justify-center gap-1 shadow-md hover:brightness-110 active:scale-95 transition-all" onclick="joinRoomByPin()">
+<span>Entrar</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="w-full py-2.5 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center justify-center gap-2 hover:bg-surface-bright active:scale-98 transition-all" onclick="openCreateModal()">
+<span class="material-symbols-outlined text-tertiary text-[18px]">add_circle</span>
+<span>Crear Sala o Evento Comunitario</span>
+</button>
+</div>
+</section>
+<!-- 3. Malla de Juegos y Modalidades (Módulos Desacoplados) -->
+<section class="flex flex-col gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-headline-sm text-headline-sm text-on-surface">Juegos del Club</span>
+<span class="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-label-sm text-label-sm font-bold">5 Módulos</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Reglas Criollas</span>
+</div>
+<!-- TARJETA 1: BINGO EN VIVO -->
+<div class="relative overflow-hidden rounded-2xl bg-surface-container p-4 shadow-lg flex flex-col gap-3.5 group">
+<!-- Glow Decorativo Fondo -->
+<div class="absolute -right-8 -top-8 w-36 h-36 rounded-full bg-secondary-container/15 blur-2xl pointer-events-none"></div>
+<div class="flex items-start justify-between relative z-10">
+<div class="flex items-center gap-3">
+<!-- Balota Gráfica 3D B-12 con brillo -->
+<div class="relative w-14 h-14 rounded-full bg-gradient-to-br from-secondary via-secondary-container to-amber-700 shadow-lg flex flex-col items-center justify-center flex-shrink-0">
+<span class="font-label-sm text-[10px] text-surface-container-lowest font-black leading-none -mt-1">BINGO</span>
+<span class="font-label-number-grid text-label-number-grid text-surface-container-lowest font-black leading-none">12</span>
+<!-- Specular shine -->
+<div class="absolute top-1 left-2 w-3.5 h-2 rounded-full bg-white/40 rotate-[-25deg]"></div>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Bingo en Vivo</h3>
+<span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-label-sm text-[10px] font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-ping"></span>
+<span>42 Salas</span>
+</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1">Tómbola sincronizada y marcadores criollos</p>
+</div>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+        Partidas multirronda en tiempo real. Canta línea, cuatro esquinas o cartón lleno con verificación instantánea de balotas.
+      </p>
+<div class="grid grid-cols-2 gap-2 pt-1">
+<a class="py-2.5 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md text-center hover:bg-surface-bright transition-colors flex items-center justify-center gap-1" data-path="bingo" href="#">
+<span class="material-symbols-outlined text-[18px]">list_alt</span>
+<span>Ver Salas</span>
+</a>
+<button class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-secondary-container to-secondary text-on-secondary font-label-md text-label-md font-bold text-center shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-1" onclick="quickJoin('bingo')">
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+<span>Jugar Rápido</span>
+</button>
+</div>
+</div>
+<!-- TARJETA 2: MICRO-RIFAS -->
+<div class="relative overflow-hidden rounded-2xl bg-surface-container p-4 shadow-lg flex flex-col gap-3.5">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<!-- Icono Talonario Estilizado -->
+<div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-tertiary-container via-tertiary to-emerald-300 flex items-center justify-center text-surface-container-lowest shadow-lg flex-shrink-0">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">confirmation_number</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Micro-Rifas</h3>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-container/30 text-tertiary font-label-sm text-[10px] font-bold">100 &amp; 1000 Números</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1">Talonarios digitales con Pago Móvil</p>
+</div>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+        Reserva tu número de la suerte al instante. Registro de comprobantes automatizado, sorteos transparentes y transmisión en directo.
+      </p>
+<div class="grid grid-cols-2 gap-2 pt-1">
+<a class="py-2.5 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md text-center hover:bg-surface-bright transition-colors flex items-center justify-center gap-1" data-path="rifas" href="#">
+<span class="material-symbols-outlined text-[18px]">search</span>
+<span>Explorar Rifas</span>
+</a>
+<button class="py-2.5 px-3 rounded-xl bg-surface-container-highest text-tertiary font-label-md text-label-md font-bold text-center hover:bg-surface-bright active:scale-95 transition-all flex items-center justify-center gap-1" onclick="createRaffleModal()">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>Crear Rifa</span>
+</button>
+</div>
+</div>
+<!-- TARJETA 3: DOMINÓ TRADICIONAL -->
+<div class="relative overflow-hidden rounded-2xl bg-surface-container p-4 shadow-lg flex flex-col gap-3.5">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<!-- Gráfico de Doble Seis de Madera Pulida Criolla -->
+<div class="w-14 h-14 rounded-2xl bg-gradient-to-b from-[#3a2010] to-[#1e1008] shadow-md flex items-center justify-center p-1.5 flex-shrink-0">
+<div class="w-full h-full rounded-lg bg-[#27150a] flex flex-col items-center justify-between p-1">
+<div class="grid grid-cols-3 gap-0.5 w-full place-items-center">
+<span class="w-1 h-1 rounded-full bg-amber-200 inline-block"></span>
+<span class="w-1 h-1 rounded-full bg-amber-200 inline-block"></span>
+<span class="w-1 h-1 rounded-full bg-amber-200 inline-block"></span>
+</div>
+<div class="w-full h-[1px] bg-amber-200/40 my-0.5"></div>
+<div class="grid grid-cols-3 gap-0.5 w-full place-items-center">
+<span class="w-1 h-1 rounded-full bg-amber-200 inline-block"></span>
+<span class="w-1 h-1 rounded-full bg-amber-200 inline-block"></span>
+<span class="w-1 h-1 rounded-full bg-amber-200 inline-block"></span>
+</div>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Dominó Criollo</h3>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-[10px] font-bold">Mano a Mano &amp; Parejas</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-1">100 Puntos • Tranca • Sonido de Mesa</p>
+</div>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+        Mesa clásica venezolana. Golpea la cochinada con audio realista, chat de voz con tus panas y conteo de tranca automático.
+      </p>
+<div class="grid grid-cols-2 gap-2 pt-1">
+<button class="py-2.5 px-3 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md text-center hover:bg-surface-bright transition-colors flex items-center justify-center gap-1" onclick="findDominoTable()">
+<span class="material-symbols-outlined text-[18px]">table_restaurant</span>
+<span>Buscar Mesa</span>
+</button>
+<button class="py-2.5 px-3 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md font-bold text-center shadow-md hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-1" onclick="joinDominoTournament()">
+<span class="material-symbols-outlined text-[18px]">emoji_events</span>
+<span>Torneo Promo</span>
+</button>
+</div>
+</div>
+<!-- TARJETA 4 & 5 EN GRID (LUDO & AJEDREZ) -->
+<div class="grid grid-cols-2 gap-3">
+<!-- Tarjeta 4: Ludo Clásico -->
+<div class="rounded-2xl bg-surface-container p-3.5 shadow-lg flex flex-col justify-between gap-3">
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-error-container via-secondary-container to-tertiary-container flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-[20px] text-white">casino</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-on-surface-variant font-label-sm text-[9px] font-bold">4 Jugadores</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-[16px] text-on-surface font-bold leading-tight">Ludo Clásico</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">Captura de fichas y carreras en familia.</p>
+</div>
+</div>
+<button class="w-full py-2 px-2.5 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright active:scale-95 transition-all flex items-center justify-center gap-1" onclick="quickJoin('ludo')">
+<span class="material-symbols-outlined text-[16px] text-secondary">play_arrow</span>
+<span>Mesa Rápida</span>
+</button>
+</div>
+<!-- Tarjeta 5: Ajedrez -->
+<div class="rounded-2xl bg-surface-container p-3.5 shadow-lg flex flex-col justify-between gap-3">
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-br from-surface-container-highest to-surface-bright flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-[20px] text-primary">chess</span>
+</div>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-high text-primary font-label-sm text-[9px] font-bold">FIDE Blitz</span>
+</div>
+<div>
+<h4 class="font-headline-sm text-[16px] text-on-surface font-bold leading-tight">Ajedrez</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 line-clamp-2">Reloj oficial de partida y salas privadas.</p>
+</div>
+</div>
+<button class="w-full py-2 px-2.5 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-bright active:scale-95 transition-all flex items-center justify-center gap-1" onclick="quickJoin('chess')">
+<span class="material-symbols-outlined text-[16px] text-primary">play_arrow</span>
+<span>Jugar 3+2</span>
+</button>
+</div>
+</div>
+</section>
+<!-- 4. Carrusel de Eventos Comunitarios Destacados en Vivo -->
+<section class="flex flex-col gap-3 pt-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]" style="font-variation-settings: 'FILL' 1;">campaign</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Causas de la Comunidad</h3>
+</div>
+<a class="font-label-sm text-label-sm text-secondary hover:underline" href="#">Ver Todas</a>
+</div>
+<!-- Scroll horizontal suave para tarjetas de eventos -->
+<div class="flex gap-3 overflow-x-auto pb-2 -mx-margin px-margin snap-x snap-mandatory">
+<!-- Evento 1: Vendimia Parroquia -->
+<div class="min-w-[285px] max-w-[290px] rounded-2xl bg-surface-container p-4 shadow-md snap-start flex flex-col justify-between gap-3 shrink-0">
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-secondary-container/30 text-secondary font-label-sm text-[10px] font-bold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Bingo + Rifa</span>
+</span>
+<span class="font-label-sm text-label-sm text-tertiary font-bold">78% Meta</span>
+</div>
+<h4 class="font-headline-sm text-[16px] text-on-surface font-bold leading-tight">
+            Gran Vendimia Parroquia San Pedro
+          </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Recaudando fondos para la cirugía de Doña Carmen. Talonario de 100 números y 3 rondas de bingo.
+          </p>
+</div>
+<!-- Barra de progreso -->
+<div class="flex flex-col gap-1.5">
+<div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full rounded-full bg-secondary" style="width: 78%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-[10px] text-on-surface-variant">
+<span>Bs 12.450 / 16.000</span>
+<span class="text-tertiary">Hoy 7:30 PM</span>
+</div>
+<button class="w-full mt-1 py-2 px-3 rounded-xl bg-surface-container-high text-secondary font-label-md text-label-md font-bold text-center hover:bg-surface-bright transition-colors" onclick="viewCause('san-pedro')">
+            Apoyar y Comprar Cartón
+          </button>
+</div>
+</div>
+<!-- Evento 2: Torneo Promo Medicina -->
+<div class="min-w-[285px] max-w-[290px] rounded-2xl bg-surface-container p-4 shadow-md snap-start flex flex-col justify-between gap-3 shrink-0">
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded-full bg-primary-container/40 text-primary font-label-sm text-[10px] font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]">trophy</span>
+<span>Torneo Dominó</span>
+</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">14/16 Cupos</span>
+</div>
+<h4 class="font-headline-sm text-[16px] text-on-surface font-bold leading-tight">
+            Copa Promo Medicina UCV 2025
+          </h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+            Mano a mano por parejas para fondo de graduación. Premios en metálico para el 1er y 2do lugar.
+          </p>
+</div>
+<!-- Barra de progreso -->
+<div class="flex flex-col gap-1.5">
+<div class="w-full h-2 rounded-full bg-surface-container-high overflow-hidden">
+<div class="h-full rounded-full bg-primary" style="width: 87%;"></div>
+</div>
+<div class="flex items-center justify-between font-label-sm text-[10px] text-on-surface-variant">
+<span>2 Parejas restantes</span>
+<span class="text-primary">Mañana 4:00 PM</span>
+</div>
+<button class="w-full mt-1 py-2 px-3 rounded-xl bg-surface-container-high text-primary font-label-md text-label-md font-bold text-center hover:bg-surface-bright transition-colors" onclick="viewCause('promo-medicina')">
+            Inscribir Mi Pareja
+          </button>
+</div>
+</div>
+</div>
+</section>
+<!-- 5. Barra de Estado del Jugador (Stats Rápidas Criollas) -->
+<section class="rounded-2xl bg-surface-container-low p-3.5 shadow-sm flex items-center justify-between">
+<div class="flex items-center gap-3">
+<!-- Ícono de Marcador Criollo Seleccionado -->
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-xl shadow-inner">
+        🫘
+      </div>
+<div class="flex flex-col">
+<span class="font-label-sm text-[10px] text-on-surface-variant uppercase tracking-wider">Marcador de Suerte</span>
+<span class="font-label-md text-label-md text-on-surface font-bold">Caraota Negra 🇻🇪</span>
+</div>
+</div>
+<a class="py-1.5 px-3 rounded-xl bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold hover:bg-surface-bright transition-colors flex items-center gap-1" data-path="perfil" href="#">
+<span class="material-symbols-outlined text-[16px]">palette</span>
+<span>Cambiar</span>
+</a>
+</section>
+</div>
+<!-- Modal Interactivo para Código PIN / Crear Sala (Ligero, vanilla JS) -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-surface-container-lowest/80 backdrop-blur-sm" id="quickModal">
+<div class="w-full max-w-sm rounded-2xl bg-surface-container p-5 shadow-2xl flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface" id="modalTitle">Unirse a Sala</h3>
+<button class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant hover:text-on-surface" onclick="closeModal()">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant" id="modalBody">
+      Conectando con la sala comunitaria...
+    </p>
+<div class="flex justify-end gap-2 pt-2">
+<button class="py-2 px-4 rounded-xl bg-surface-container-high text-on-surface font-label-md text-label-md" onclick="closeModal()">
+        Cerrar
+      </button>
+<button class="py-2 px-4 rounded-xl bg-primary-container text-on-primary-container font-label-md text-label-md font-bold" id="modalActionBtn" onclick="closeModal()">
+        Aceptar
+      </button>
+</div>
+</div>
+</div>
+<script>
+  // Control de Modo: Amistoso vs Pro-Fondos
+  let currentMode = 'amistoso';
+
+  function switchMode(mode) {
+    currentMode = mode;
+    const btnAmistoso = document.getElementById('btnAmistoso');
+    const btnProFondos = document.getElementById('btnProFondos');
+    const modeDesc = document.getElementById('modeDescription');
+    const modeIcon = document.getElementById('modeIcon');
+
+    if (mode === 'amistoso') {
+      btnAmistoso.className = "relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl transition-all duration-300 font-label-md text-label-md bg-surface-container-high text-on-surface shadow-sm";
+      btnProFondos.className = "relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl transition-all duration-300 font-label-md text-label-md text-on-surface-variant hover:text-on-surface";
+      modeDesc.textContent = "Juega sin costo con amigos, familia y vecinos en mesas privadas o abiertas.";
+      modeIcon.textContent = "sentiment_very_satisfied";
+      modeIcon.className = "material-symbols-outlined text-[16px] text-tertiary flex-shrink-0";
+    } else {
+      btnProFondos.className = "relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl transition-all duration-300 font-label-md text-label-md bg-surface-container-high text-on-surface shadow-sm";
+      btnAmistoso.className = "relative flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl transition-all duration-300 font-label-md text-label-md text-on-surface-variant hover:text-on-surface";
+      modeDesc.textContent = "Apoya causas benéficas de vecinos y graduaciones con gestión transparente.";
+      modeIcon.textContent = "volunteer_activism";
+      modeIcon.className = "material-symbols-outlined text-[16px] text-secondary flex-shrink-0";
+    }
+  }
+
+  // Interacciones de Diálogo / Modal Rápido
+  function showModal(title, message) {
+    const modal = document.getElementById('quickModal');
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').textContent = message;
+    modal.classList.remove('hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('quickModal').classList.add('hidden');
+  }
+
+  function joinRoomByPin() {
+    const pin = document.getElementById('pinInput').value.trim();
+    if (!pin) {
+      showModal("Código Requerido", "Por favor ingresa los 6 dígitos del PIN para ingresar a la sala.");
+      return;
+    }
+    showModal("Buscando Sala...", "Localizando partida con el PIN #" + pin.toUpperCase() + ". Espera la confirmación del anfitrión.");
+  }
+
+  function scanQRModal() {
+    showModal("Escanear Código QR", "Apunta la cámara al código QR de la partida de Bingo o Mesa de Dominó de tu anfitrión.");
+  }
+
+  function openCreateModal() {
+    showModal("Crear Nueva Sala", "Elige la modalidad: ¿Deseas armar un Bingo Amistoso, una Micro-Rifa Pro-Fondos o una Mesa Criolla de Dominó?");
+  }
+
+  function quickJoin(game) {
+    const names = { bingo: "Bingo en Vivo", ludo: "Ludo Clásico", chess: "Ajedrez Blitz" };
+    showModal("Búsqueda Rápida", "Buscando mesa libre en " + (names[game] || game) + " en modo " + currentMode.toUpperCase() + "...");
+  }
+
+  function createRaffleModal() {
+    showModal("Crear Micro-Rifa", "Configura tu talonario digital de 100 o 1000 números con verificación de Pago Móvil.");
+  }
+
+  function findDominoTable() {
+    showModal("Mesa de Dominó", "Cargando salas activas con sonido de mesa criolla y conteo a 100 puntos.");
+  }
+
+  function joinDominoTournament() {
+    showModal("Inscripción Torneo", "Copa Promo Medicina 2025: Quedan 2 cupos para parejas. ¿Deseas inscribirte con tu compañero?");
+  }
+
+  function viewCause(slug) {
+    showModal("Detalles de Causa", "Abriendo ficha transparente de aportes y cartones benéficos para este evento.");
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.3)]" data-active-classes="text-secondary bg-surface-container-high/70 shadow-inner"><div class="grid grid-cols-5 items-center h-16 px-1.5"><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 h-12 rounded-xl transition-all duration-200 text-secondary bg-surface-container-high/70 shadow-inner" data-path="inicio" href="#"><span class="material-symbols-outlined text-[22px]">dashboard</span><span class="font-label-sm text-[10px] leading-tight tracking-tight">Inicio</span></a><a class="flex flex-col items-center justify-center gap-0.5 h-12 rounded-xl text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="bingo" href="#"><span class="material-symbols-outlined text-[22px]">casino</span><span class="font-label-sm text-[10px] leading-tight tracking-tight">Bingo</span></a><a class="flex flex-col items-center justify-center gap-0.5 h-12 rounded-xl text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="rifas" href="#"><span class="material-symbols-outlined text-[22px]">confirmation_number</span><span class="font-label-sm text-[10px] leading-tight tracking-tight">Rifas</span></a><a class="flex flex-col items-center justify-center gap-0.5 h-12 rounded-xl text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="mesa" href="#"><span class="material-symbols-outlined text-[22px]">grid_view</span><span class="font-label-sm text-[10px] leading-tight tracking-tight">Mesa</span></a><a class="flex flex-col items-center justify-center gap-0.5 h-12 rounded-xl text-on-surface-variant hover:text-on-surface transition-all duration-200" data-path="perfil" href="#"><span class="material-symbols-outlined text-[22px]">account_circle</span><span class="font-label-sm text-[10px] leading-tight tracking-tight">Perfil</span></a></div></nav></body></html>
