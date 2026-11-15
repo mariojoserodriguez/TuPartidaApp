@@ -23,55 +23,53 @@
 - [x] Crear repositorio remoto en GitHub: `https://github.com/mariojoserodriguez/TuPartidaApp` y hacer push inicial.
 - [x] Extraer y estructurar el prototipo visual de Stitch (`prototype_stitch/`).
 - [x] Crear `checklist.md` con la hoja de ruta y decisiones de arquitectura.
-- [ ] Renombrar en Google Cloud Console `My First Project` a `TuPartidaApp`.
-- [ ] Vincular el proyecto en Firebase Console (activar Firestore Database y Firebase Authentication).
-- [ ] Registrar Web App en Firebase y extraer variables de entorno (`firebaseConfig`).
+- [x] Renombrar en Google Cloud Console el proyecto a `TuPartidaApp` (`project-50b07764-c4ba-4320-b28`).
+- [x] Habilitar Firestore Database en modo Nativo (Región `nam5` - Free Tier).
+- [x] Registrar Web App en Firebase y configurar variables en `.env`.
 
 ---
 
 ### 🎨 Fase 1: Arquitectura Frontend & Sistema de Diseño (Mobile-First PWA)
-- [ ] Inicializar proyecto base: `Vite + React 19 + TypeScript + Tailwind CSS`.
-- [ ] Configurar tipografías (`Outfit`, `Plus Jakarta Sans`, `Space Grotesk`) y paleta de colores del diseño Stitch (`#0b1326`, indigo `#4f46e5`, esmeralda, dorado).
-- [ ] Configurar manifiesto PWA (`vite-plugin-pwa`) para instalación en pantalla de inicio y bajo consumo de datos.
-- [ ] Implementar Layout común (Navbar móvil con avatar, estado de conexión y chips de estado).
-- [ ] Desarrollar **Hub Principal**:
-  - Selector de modo (*Amistoso* vs *Pro-Fondos*).
-  - Tarjetas de acceso a **Bingo en Vivo** y **Micro-Rifas**.
-  - Estado de juegos futuros (Dominó, Ludo y Ajedrez marcados como "Próximamente").
-  - Entrada rápida a sala por código PIN de 6 dígitos.
+- [x] Inicializar proyecto base: `Vite + React 19 + TypeScript + Tailwind CSS v4`.
+- [x] Configurar tipografías (`Outfit`, `Plus Jakarta Sans`, `Space Grotesk`) y paleta de colores del diseño Stitch (`#0b1326`, indigo `#4f46e5`, esmeralda, dorado).
+- [x] Implementar Layout común (Header móvil con logo SocialPlay/TuPartida, selector de marcadores criollos y autenticación).
+- [x] Desarrollar **Hub Principal**:
+  - [x] Selector de modo (*Amistoso* vs *Pro-Fondos*).
+  - [x] Tarjetas de acceso a **Bingo en Vivo** y **Micro-Rifas**.
+  - [x] Tarjetas de juegos futuros (Dominó, Ludo y Ajedrez marcados como "Próximamente").
+  - [x] Entrada rápida a sala por código PIN de 6 dígitos.
+  - [x] Modal de creación de sala con configuración personalizada.
 
 ---
 
 ### 🎱 Fase 2: Módulo de Bingo en Vivo (El Bombo & Cartones)
-- [ ] **Modelo de Datos en Firestore:**
-  - Colección `rooms`: configuración de sala, anfitrión, modo, estado (`LOBBY`, `JUGANDO`, `FINALIZADO`).
-  - Subcolección `bingo_rounds`: tipo de victoria (Línea, Cuatro Esquinas, Cartón Lleno), balotas cantadas (`drawn_numbers`).
-  - Subcolección `bingo_cards`: matriz 5x5, usuario asignado, política de cartón (desechable vs reutilizable).
-- [ ] **Generador Determinista de Cartones B-I-N-G-O:**
-  - Columnas estándar (B: 1-15, I: 16-30, N: 31-45 con centro libre, G: 46-60, O: 61-75).
-- [ ] **Panel del Jugador:**
-  - Vista interactiva de cartones con marcadores visuales (Caraota, Maíz, Lenteja, Neón).
-  - Sonido de mesa criollo al marcar casillas.
-  - Botón ¡CANTAR BINGO! con bloqueo anti-spam.
-- [ ] **Panel del Anfitrión (El Bombo):**
-  - Sacar bola manual o en modo automático (temporizador ajustable: 5s, 10s, 15s).
-  - Tablero maestro de 75 casillas sincronizado en tiempo real vía Firestore `onSnapshot`.
-  - Locución/Voz que canta el número (Web Speech API o clips de audio).
-- [ ] **Validador Criptográfico / Determinista:**
-  - Comprobación matemática instantánea en backend/cliente: valida si el cartón que cantó BINGO efectivamente tiene los números cantados en el patrón requerido (evita reclamos falsos sin detener el juego).
+- [x] **Motor Determinista de Bingo:**
+  - [x] Generador de matrices 5x5 B-I-N-G-O estándar (1-75) con centro libre en `src/lib/bingoEngine.ts`.
+  - [x] Algoritmo determinista de comprobación matemática de victoria (Línea, Cuatro Esquinas, Cartón Lleno).
+- [x] **Servicio en Tiempo Real con Firestore (`src/lib/roomService.ts`):**
+  - [x] Creación de salas y búsqueda por código PIN de 6 dígitos.
+  - [x] Listener en tiempo real `subscribeToRoom`.
+  - [x] Extracción de balotas del bombo sincronizada.
+  - [x] Generación y sincronización de cartones por jugador en subcolecciones.
+- [x] **Panel del Anfitrión (El Bombo):**
+  - [x] Esfera interactiva de última bola cantada (`B-12`, `N-34`).
+  - [x] Botón de extracción manual y modo automático (cada 7s).
+  - [x] Tablero maestro completo de 75 casillas con historial iluminado.
+  - [x] Locución por voz automática (Web Speech API) y efectos de sonido nativos (Web Audio API).
+  - [x] Botón directo de compartir enlace por WhatsApp con código PIN.
+- [x] **Panel del Jugador:**
+  - [x] Cartón interactivo 5x5 con selección de marcadores criollos (Caraota Negra 🫘, Grano de Maíz 🌽, Lenteja Marrón 🟤, Sello Neón ✨).
+  - [x] Detección de balotas cantadas en tiempo real.
+  - [x] Botón ¡CANTAR BINGO! con validación instantánea y celebración con confeti.
 
 ---
 
 ### 🎟️ Fase 3: Módulo de Micro-Rifas (Talonarios Digitales)
-- [ ] **Estructura de Talonario:**
-  - Modo 100 números (`00` al `99`) para causas rápidas.
-  - Modo 1000 números (`000` al `999`) para premios mayores.
-- [ ] **Manejo de Estados en Tiempo Real:**
-  - Estados: `DISPONIBLE`, `RESERVADO` (con TTL de 15 minutos), `CONFIRMADO_PAGADO`.
-  - Implementación con `runTransaction()` en Firestore para evitar que dos personas reserven el mismo número simultáneamente.
-- [ ] **Bandeja de Conciliación de Pagos:**
-  - Formulario del participante para reportar número de referencia de Pago Móvil / Zelle / Efectivo.
-  - Panel del organizador para contrastar la referencia y confirmar con 1 clic.
+- [x] Talonario interactivo de 100 números (00 al 99).
+- [x] Control visual de estados (`DISPONIBLE`, `RESERVADO`, `CONFIRMADO_PAGADO`).
+- [x] Formulario modal de reserva con nombre, teléfono WhatsApp y referencia de pago.
+- [x] Tarjeta de Libro Contable Comunitario con cálculo automático de meta y recaudación.
+- [x] Botón de generación y envío de balance público a grupos de WhatsApp.
 
 ---
 
