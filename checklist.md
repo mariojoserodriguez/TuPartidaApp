@@ -28,6 +28,8 @@
 - [x] Habilitar Firestore Database en modo Nativo (Región `nam5` - Free Tier).
 - [x] Registrar Web App en Firebase y configurar variables en `.env`.
 - [x] Diseñar e implementar `firestore.rules` con el subagente especialista y desplegar a Firebase Cloud.
+- [x] Sanitizar objetos en Firestore (`ignoreUndefinedProperties: true` y valor por defecto en `paymentInfo`).
+- [x] Configurar script de despliegue controlado `npm run deploy:clean` en `package.json`.
 
 ---
 

@@ -4,11 +4,9 @@ import {
   signInAnonymously, 
   GoogleAuthProvider, 
   signInWithPopup, 
-  signOut,
-  onAuthStateChanged,
-  type User
+  signOut
 } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { initializeFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -22,7 +20,11 @@ const firebaseConfig = {
 // Initialize Firebase once
 export const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+// Initialize Firestore with ignoreUndefinedProperties to prevent undefined field errors
+export const db = initializeFirestore(app, {
+  ignoreUndefinedProperties: true,
+});
 
 // Authentication Helpers
 export async function loginAsGuest(nickname: string) {

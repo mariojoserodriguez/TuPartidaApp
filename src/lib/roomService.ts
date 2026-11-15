@@ -62,7 +62,7 @@ export async function createRoom(params: {
       pricePerCard: params.pricePerCard || 0,
       targetAmount: params.targetAmount || 0,
       causeDescription: params.causeDescription || '',
-      paymentInfo: params.paymentInfo,
+      paymentInfo: params.paymentInfo || {},
     },
     currentRound: 1,
     drawnNumbers: [],
