@@ -20,6 +20,7 @@
 
 ### 🟢 Fase 0: Infraestructura, Git y Conexión Cloud
 - [x] Inicializar repositorio local Git con rama `main` y `.gitignore`.
+- [x] Crear repositorio remoto en GitHub: `https://github.com/mariojoserodriguez/TuPartidaApp` y hacer push inicial.
 - [x] Extraer y estructurar el prototipo visual de Stitch (`prototype_stitch/`).
 - [x] Crear `checklist.md` con la hoja de ruta y decisiones de arquitectura.
 - [ ] Renombrar en Google Cloud Console `My First Project` a `TuPartidaApp`.
