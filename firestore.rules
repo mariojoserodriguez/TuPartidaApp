@@ -1,0 +1,345 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: /rooms/{roomId}
+// Document ID: auto-generated or custom room ID string
+// Fields:
+//   - id: string (required, 1-64 chars, immutable) - Document identifier matching roomId
+//   - pinCode: string (required, 6 digits "^[0-9]{6}$", immutable) - Access PIN code for guests
+//   - hostId: string (required, 1-128 chars, immutable) - Firebase Auth UID of the creator/host
+//   - hostName: string (required, 1-50 chars) - Display name of the host
+//   - gameType: string (required, enum: 'BINGO', 'RAFFLE', 'DOMINO', 'LUDO', 'CHESS', immutable) - Game type
+//   - mode: string (required, enum: 'AMISTOSO', 'PRO_FONDOS') - Friendly or fundraising mode
+//   - title: string (required, 1-100 chars) - Title of the room/event
+//   - status: string (required, enum: 'LOBBY', 'PLAYING', 'PAUSED', 'FINISHED') - Room lifecycle state
+//   - createdAt: int or timestamp (required, immutable) - Creation timestamp in epoch ms
+//   - currentRound: int (required, 1-1000) - Current game round
+//   - drawnNumbers: list (required, max 75 ints between 1-75) - Numbers drawn in the current round
+//   - config: map (required) - Configuration settings
+//       - cardsPolicy: string (required, enum: 'REUSABLE', 'DISPOSABLE')
+//       - winningPattern: string (required, enum: 'LINE', 'FOUR_CORNERS', 'FULL_HOUSE')
+//       - pricePerCard: number (optional, 0-1,000,000)
+//       - targetAmount: number (optional, 0-1,000,000,000)
+//       - causeDescription: string (optional, max 500 chars)
+//       - paymentInfo: map (optional) - Payment details for pro-fondos
+//           - pagoMovilBank: string (optional, max 100 chars)
+//           - pagoMovilPhone: string (optional, max 30 chars)
+//           - pagoMovilId: string (optional, max 30 chars)
+//           - zelleEmail: string (optional, max 100 chars)
+//           - binanceId: string (optional, max 100 chars)
+//   - lastDrawnNumber: int (optional, 1-75) - Last ball extracted from the bombo
+//   - winnerUserId: string (optional, 1-128 chars) - UID of verified bingo winner
+//   - winnerUserName: string (optional, 1-50 chars) - Name of verified bingo winner
+//
+// Subcollection: /rooms/{roomId}/cards/{cardId}
+// Document ID: auto-generated or card ID string
+// Fields:
+//   - id: string (optional, 1-64 chars)
+//   - roomId: string (required, immutable, must match parent roomId)
+//   - userId: string (required, immutable, 1-128 chars) - Player UID
+//   - userName: string (required, 1-50 chars) - Player display name
+//   - cardIndex: int (required, 1-10, immutable) - Card number for the player
+//   - matrix: list of 5 lists of 5 ints (required, immutable) - 5x5 Bingo matrix
+//   - marked: list of 5 lists of 5 bools (required) - 5x5 Marker status
+//   - isWinner: bool (required) - Win claim flag
+//
+// Subcollection: /rooms/{roomId}/tickets/{ticketId}
+// Document ID: ticket ID string (e.g., "ticket_07")
+// Fields:
+//   - id: string (optional, 1-64 chars)
+//   - ticketNumber: int (required, 0-9999, immutable) - Numeric ticket identifier
+//   - formattedNumber: string (required, 1-10 chars, immutable) - Formatted string (e.g. "07")
+//   - status: string (required, enum: 'AVAILABLE', 'RESERVED', 'PAID') - Ticket sale status
+//   - buyerId: string (optional, 1-128 chars) - UID of buyer/reserver
+//   - buyerName: string (optional, 1-50 chars) - Buyer name
+//   - buyerPhone: string (optional, 1-30 chars) - Contact phone for verification
+//   - paymentRef: string (optional, 1-100 chars) - Payment reference code
+//   - reservedAt: int or timestamp (optional) - Reservation epoch ms
+//   - reservedUntil: int or timestamp (optional) - Reservation expiration epoch ms
+//
+// Collection: /users/{userId}
+// Document ID: userId matching request.auth.uid
+// Fields:
+//   - displayName: string (optional, 1-50 chars) - Public user name
+//   - photoURL: string (optional, max 500 chars, valid URL or empty) - Avatar
+//   - selectedMarker: string (optional, enum: 'CARAOTA', 'MAIZ', 'LENTEJA', 'NEON')
+//   - createdAt: int or timestamp (optional, immutable)
+//   - updatedAt: int or timestamp (optional)
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the user is authenticated (including anonymous guests and hosts)
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user owns the document by matching userId in the path
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check if user is the host of a given room
+    function isRoomHost(roomId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/rooms/$(roomId)) &&
+        get(/databases/$(database)/documents/rooms/$(roomId)).data.hostId == request.auth.uid;
+    }
+
+    // Validate that immutable fields remain unchanged during update
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    // Validate URL format (http or https)
+    function isValidUrl(url) {
+      return url is string && (url.matches('^https?://.*') || url == '');
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    // Validates payment info map inside room configuration
+    function isValidPaymentInfo(paymentInfo) {
+      return paymentInfo is map &&
+        paymentInfo.keys().hasOnly(['pagoMovilBank', 'pagoMovilPhone', 'pagoMovilId', 'zelleEmail', 'binanceId']) &&
+        (!('pagoMovilBank' in paymentInfo) || (paymentInfo.pagoMovilBank is string && paymentInfo.pagoMovilBank.size() <= 100)) &&
+        (!('pagoMovilPhone' in paymentInfo) || (paymentInfo.pagoMovilPhone is string && paymentInfo.pagoMovilPhone.size() <= 30)) &&
+        (!('pagoMovilId' in paymentInfo) || (paymentInfo.pagoMovilId is string && paymentInfo.pagoMovilId.size() <= 30)) &&
+        (!('zelleEmail' in paymentInfo) || (paymentInfo.zelleEmail is string && paymentInfo.zelleEmail.size() <= 100)) &&
+        (!('binanceId' in paymentInfo) || (paymentInfo.binanceId is string && paymentInfo.binanceId.size() <= 100));
+    }
+
+    // Validates room configuration map
+    function isValidRoomConfig(config) {
+      return config is map &&
+        config.keys().hasAll(['cardsPolicy', 'winningPattern']) &&
+        config.keys().hasOnly(['cardsPolicy', 'winningPattern', 'pricePerCard', 'targetAmount', 'causeDescription', 'paymentInfo']) &&
+        config.cardsPolicy in ['REUSABLE', 'DISPOSABLE'] &&
+        config.winningPattern in ['LINE', 'FOUR_CORNERS', 'FULL_HOUSE'] &&
+        (!('pricePerCard' in config) || (config.pricePerCard is number && config.pricePerCard >= 0 && config.pricePerCard <= 1000000)) &&
+        (!('targetAmount' in config) || (config.targetAmount is number && config.targetAmount >= 0 && config.targetAmount <= 1000000000)) &&
+        (!('causeDescription' in config) || (config.causeDescription is string && config.causeDescription.size() <= 500)) &&
+        (!('paymentInfo' in config) || isValidPaymentInfo(config.paymentInfo));
+    }
+
+    // Validates room document data model
+    function isValidRoom(data) {
+      return data.keys().hasAll(['id', 'pinCode', 'hostId', 'hostName', 'gameType', 'mode', 'title', 'status', 'createdAt', 'config', 'currentRound', 'drawnNumbers']) &&
+        data.keys().hasOnly(['id', 'pinCode', 'hostId', 'hostName', 'gameType', 'mode', 'title', 'status', 'createdAt', 'config', 'currentRound', 'drawnNumbers', 'lastDrawnNumber', 'winnerUserId', 'winnerUserName']) &&
+        data.id is string && data.id.size() > 0 && data.id.size() <= 64 &&
+        data.pinCode is string && data.pinCode.matches('^[0-9]{6}$') &&
+        data.hostId is string && data.hostId.size() > 0 && data.hostId.size() <= 128 &&
+        data.hostName is string && data.hostName.size() > 0 && data.hostName.size() <= 50 &&
+        data.gameType in ['BINGO', 'RAFFLE', 'DOMINO', 'LUDO', 'CHESS'] &&
+        data.mode in ['AMISTOSO', 'PRO_FONDOS'] &&
+        data.title is string && data.title.size() > 0 && data.title.size() <= 100 &&
+        data.status in ['LOBBY', 'PLAYING', 'PAUSED', 'FINISHED'] &&
+        (data.createdAt is int || data.createdAt is timestamp) &&
+        data.currentRound is int && data.currentRound >= 1 && data.currentRound <= 1000 &&
+        data.drawnNumbers is list && data.drawnNumbers.size() <= 75 &&
+        isValidRoomConfig(data.config) &&
+        (!('lastDrawnNumber' in data) || (data.lastDrawnNumber is int && data.lastDrawnNumber >= 1 && data.lastDrawnNumber <= 75)) &&
+        (!('winnerUserId' in data) || (data.winnerUserId is string && data.winnerUserId.size() > 0 && data.winnerUserId.size() <= 128)) &&
+        (!('winnerUserName' in data) || (data.winnerUserName is string && data.winnerUserName.size() > 0 && data.winnerUserName.size() <= 50));
+    }
+
+    // Validates 5x5 Bingo number matrix
+    function isValidBingoMatrix(matrix) {
+      return matrix is list && matrix.size() == 5 &&
+        matrix[0] is list && matrix[0].size() == 5 &&
+        matrix[1] is list && matrix[1].size() == 5 &&
+        matrix[2] is list && matrix[2].size() == 5 &&
+        matrix[3] is list && matrix[3].size() == 5 &&
+        matrix[4] is list && matrix[4].size() == 5;
+    }
+
+    // Validates 5x5 Bingo marked boolean matrix
+    function isValidBingoMarked(marked) {
+      return marked is list && marked.size() == 5 &&
+        marked[0] is list && marked[0].size() == 5 &&
+        marked[1] is list && marked[1].size() == 5 &&
+        marked[2] is list && marked[2].size() == 5 &&
+        marked[3] is list && marked[3].size() == 5 &&
+        marked[4] is list && marked[4].size() == 5;
+    }
+
+    // Validates Bingo Card document data model
+    function isValidBingoCard(data, roomId) {
+      return data.keys().hasAll(['roomId', 'userId', 'userName', 'cardIndex', 'matrix', 'marked', 'isWinner']) &&
+        data.keys().hasOnly(['id', 'roomId', 'userId', 'userName', 'cardIndex', 'matrix', 'marked', 'isWinner']) &&
+        (!('id' in data) || (data.id is string && data.id.size() <= 64)) &&
+        data.roomId == roomId &&
+        data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128 &&
+        data.userName is string && data.userName.size() > 0 && data.userName.size() <= 50 &&
+        data.cardIndex is int && data.cardIndex >= 1 && data.cardIndex <= 10 &&
+        data.isWinner is bool &&
+        isValidBingoMatrix(data.matrix) &&
+        isValidBingoMarked(data.marked);
+    }
+
+    // Validates Raffle Ticket document data model
+    function isValidTicket(data) {
+      return data.keys().hasAll(['ticketNumber', 'formattedNumber', 'status']) &&
+        data.keys().hasOnly(['id', 'ticketNumber', 'formattedNumber', 'status', 'buyerId', 'buyerName', 'buyerPhone', 'paymentRef', 'reservedAt', 'reservedUntil']) &&
+        (!('id' in data) || (data.id is string && data.id.size() <= 64)) &&
+        data.ticketNumber is int && data.ticketNumber >= 0 && data.ticketNumber <= 9999 &&
+        data.formattedNumber is string && data.formattedNumber.size() >= 1 && data.formattedNumber.size() <= 10 &&
+        data.status in ['AVAILABLE', 'RESERVED', 'PAID'] &&
+        (!('buyerId' in data) || (data.buyerId is string && data.buyerId.size() > 0 && data.buyerId.size() <= 128)) &&
+        (!('buyerName' in data) || (data.buyerName is string && data.buyerName.size() > 0 && data.buyerName.size() <= 50)) &&
+        (!('buyerPhone' in data) || (data.buyerPhone is string && data.buyerPhone.size() > 0 && data.buyerPhone.size() <= 30)) &&
+        (!('paymentRef' in data) || (data.paymentRef is string && data.paymentRef.size() <= 100)) &&
+        (!('reservedAt' in data) || data.reservedAt is int || data.reservedAt is timestamp) &&
+        (!('reservedUntil' in data) || data.reservedUntil is int || data.reservedUntil is timestamp);
+    }
+
+    // Validates User Public Profile document data model (strictly non-PII)
+    function isValidUser(data) {
+      return data.keys().hasOnly(['displayName', 'photoURL', 'selectedMarker', 'createdAt', 'updatedAt']) &&
+        (!('displayName' in data) || (data.displayName is string && data.displayName.size() > 0 && data.displayName.size() <= 50)) &&
+        (!('photoURL' in data) || (data.photoURL is string && (data.photoURL == '' || isValidUrl(data.photoURL)) && data.photoURL.size() <= 500)) &&
+        (!('selectedMarker' in data) || (data.selectedMarker is string && data.selectedMarker in ['CARAOTA', 'MAIZ', 'LENTEJA', 'NEON'])) &&
+        (!('createdAt' in data) || data.createdAt is int || data.createdAt is timestamp) &&
+        (!('updatedAt' in data) || data.updatedAt is int || data.updatedAt is timestamp);
+    }
+
+    // ===============================================================
+    // Root Fallback / Default Deny
+    // ===============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ===============================================================
+    // Collection: Rooms
+    // ===============================================================
+    match /rooms/{roomId} {
+      // Any authenticated user (including anonymous guest players) can read rooms to join by PIN
+      allow read: if isAuthenticated();
+
+      // Only authenticated users can create rooms, must set themselves as host
+      allow create: if isAuthenticated() &&
+                       request.resource.data.hostId == request.auth.uid &&
+                       request.resource.data.id == roomId &&
+                       request.resource.data.status in ['LOBBY', 'PLAYING'] &&
+                       request.resource.data.drawnNumbers.size() == 0 &&
+                       request.resource.data.currentRound == 1 &&
+                       !('winnerUserId' in request.resource.data) &&
+                       !('winnerUserName' in request.resource.data) &&
+                       isValidRoom(request.resource.data);
+
+      // Updates: Either Host manages room, or Player sings BINGO
+      allow update: if isAuthenticated() &&
+                       isValidRoom(request.resource.data) &&
+                       (
+                         // Host updates balls, round, pause/play, configuration
+                         (
+                           resource.data.hostId == request.auth.uid &&
+                           areImmutableFieldsUnchanged(['id', 'pinCode', 'hostId', 'createdAt', 'gameType'])
+                         ) ||
+                         // Player claims BINGO
+                         (
+                           resource.data.status in ['PLAYING', 'LOBBY'] &&
+                           request.resource.data.status == 'FINISHED' &&
+                           request.resource.data.winnerUserId == request.auth.uid &&
+                           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'winnerUserId', 'winnerUserName'])
+                         )
+                       );
+
+      // Only host can delete room
+      allow delete: if isAuthenticated() && resource.data.hostId == request.auth.uid;
+
+      // =============================================================
+      // Subcollection: Bingo Cards
+      // =============================================================
+      match /cards/{cardId} {
+        // Authenticated users in the room can read cards
+        allow read: if isAuthenticated();
+
+        // Player generates their own card
+        allow create: if isAuthenticated() &&
+                         request.resource.data.userId == request.auth.uid &&
+                         request.resource.data.isWinner == false &&
+                         isValidBingoCard(request.resource.data, roomId);
+
+        // Player marks their card or Host inspects/updates; core numbers matrix is immutable
+        allow update: if isAuthenticated() &&
+                         isValidBingoCard(request.resource.data, roomId) &&
+                         areImmutableFieldsUnchanged(['roomId', 'userId', 'cardIndex', 'matrix']) &&
+                         (
+                           resource.data.userId == request.auth.uid ||
+                           isRoomHost(roomId)
+                         );
+
+        // Card owner or room host can delete card
+        allow delete: if isAuthenticated() &&
+                         (
+                           resource.data.userId == request.auth.uid ||
+                           isRoomHost(roomId)
+                         );
+      }
+
+      // =============================================================
+      // Subcollection: Micro-Raffle Tickets
+      // =============================================================
+      match /tickets/{ticketId} {
+        // Authenticated users can view raffle board tickets
+        allow read: if isAuthenticated();
+
+        // Only room host can generate tickets
+        allow create: if isRoomHost(roomId) &&
+                         isValidTicket(request.resource.data);
+
+        // Updates: Host manages ticket, or Player reserves an AVAILABLE ticket
+        allow update: if isAuthenticated() &&
+                         isValidTicket(request.resource.data) &&
+                         areImmutableFieldsUnchanged(['ticketNumber', 'formattedNumber']) &&
+                         (
+                           // Host can mark PAID or reset/release tickets
+                           isRoomHost(roomId) ||
+                           // Player reserves AVAILABLE ticket
+                           (
+                             resource.data.status == 'AVAILABLE' &&
+                             request.resource.data.status == 'RESERVED' &&
+                             request.resource.data.buyerId == request.auth.uid &&
+                             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'buyerId', 'buyerName', 'buyerPhone', 'paymentRef', 'reservedAt', 'reservedUntil'])
+                           )
+                         );
+
+        // Only room host can delete tickets
+        allow delete: if isRoomHost(roomId);
+      }
+    }
+
+    // ===============================================================
+    // Collection: Users (Public Profiles)
+    // ===============================================================
+    match /users/{userId} {
+      // Authenticated users can view public user profiles (contains no PII)
+      allow read: if isAuthenticated();
+
+      // Only the authenticated user can create their profile
+      allow create: if isOwner(userId) &&
+                       isValidUser(request.resource.data);
+
+      // Only the user can update their profile; createdAt is immutable
+      allow update: if isOwner(userId) &&
+                       isValidUser(request.resource.data) &&
+                       areImmutableFieldsUnchanged(['createdAt']);
+
+      // Only the user can delete their profile
+      allow delete: if isOwner(userId);
+    }
+  }
+}
