@@ -17,7 +17,9 @@ import {
   subscribeToPlayerCards, 
   subscribeToHostedRooms,
   generatePlayerCards,
-  getPlayerCards 
+  getPlayerCards,
+  updateRoomHostName,
+  updatePlayerCardsUserName
 } from './lib/roomService';
 import { Header } from './components/Header';
 import { HubMenu } from './components/HubMenu';
@@ -205,7 +207,16 @@ export function App() {
         guestName={guestName}
         selectedMarker={selectedMarker}
         onSelectMarker={handleSelectMarker}
-        onUpdateGuestName={(name) => setGuestName(name)}
+        onUpdateGuestName={(name) => {
+          setGuestName(name);
+          localStorage.setItem('tupartida_guest_name', name);
+          if (activeRoom && user) {
+            if (user.uid === activeRoom.hostId) {
+              updateRoomHostName(activeRoom.id, name);
+            }
+            updatePlayerCardsUserName(activeRoom.id, user.uid, name);
+          }
+        }}
         onLogin={loginWithGoogle}
         onLogout={logoutUser}
         onGoHome={() => setCurrentView('HUB')}
@@ -254,6 +265,7 @@ export function App() {
         {currentView === 'BINGO_HOST' && activeRoom && (
           <BingoHostView
             room={activeRoom}
+            userName={user?.displayName || guestName}
             onLeave={() => setCurrentView('HUB')}
             onNextRound={handleNextRound}
           />

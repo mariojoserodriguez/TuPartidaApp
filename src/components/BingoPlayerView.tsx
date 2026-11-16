@@ -192,7 +192,7 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
     setIsClaiming(true);
     setClaimStatus(null);
 
-    const result = await claimBingo(room, activeCard);
+    const result = await claimBingo(room, activeCard, userName);
     setClaimStatus(result);
     setIsClaiming(false);
 
@@ -219,7 +219,7 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
   };
 
   return (
-    <div className="flex flex-col gap-4 pb-24">
+    <div className="flex flex-col gap-3 pb-36">
       {/* Top Status Bar */}
       <div className="flex items-center justify-between bg-[#171f33] border border-white/10 rounded-2xl p-3 shadow-md">
         <button 
@@ -261,35 +261,10 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
         </div>
       </div>
 
-      {/* Near-Bingo Alert: A tiro de BINGO! */}
-      {nearStatus.isNear && room.status !== 'FINISHED' && (
-        <div className="bg-gradient-to-r from-amber-500/30 via-orange-500/20 to-amber-500/30 border-2 border-amber-400 rounded-2xl p-2.5 text-center shadow-[0_0_25px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 animate-pulse">
-          <Flame className="w-4 h-4 text-amber-400 flex-shrink-0 animate-bounce" />
-          <span className="text-xs font-black text-white font-['Outfit'] tracking-wide">
-            ¡ESTÁS A 1 NÚMERO DE GANAR! 🔥
-            {nearStatus.missingNumbers.length > 0 && (
-              <span className="text-amber-300 ml-1 font-['Space_Grotesk']">
-                (Te falta: {nearStatus.missingNumbers.map(n => `${getLetterForNumber(n)}-${n}`).join(', ')})
-              </span>
-            )}
-          </span>
-        </div>
-      )}
-
-      {/* Match Alert Notification Banner */}
-      {matchNotification && (
-        <div className="bg-gradient-to-r from-emerald-500/30 via-emerald-600/20 to-teal-500/30 border-2 border-emerald-400 rounded-2xl p-3 text-center shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 animate-bounce">
-          <BellRing className="w-4 h-4 text-emerald-400 flex-shrink-0 animate-spin" />
-          <span className="text-xs font-black text-white font-['Outfit'] tracking-wide">
-            {matchNotification}
-          </span>
-        </div>
-      )}
-
-      {/* Live 3D Ball Extracted from the Bombo */}
-      <div className="bg-gradient-to-r from-indigo-950 via-[#171f33] to-indigo-950 border border-indigo-500/30 rounded-3xl p-4 flex items-center justify-between shadow-xl">
-        <div className="flex items-center gap-3">
-          {/* 3D Ball Sphere with Pop Animation key */}
+      {/* 1. Unified Dashboard: Latest 3D Ball + Sequential History in ONE Single Compact Card */}
+      <div className="bg-gradient-to-r from-indigo-950 via-[#171f33] to-[#0b1326] border border-indigo-500/30 rounded-3xl p-2.5 sm:p-3 shadow-xl flex items-center gap-3">
+        {/* Left: Latest 3D Ball */}
+        <div className="flex flex-col items-center flex-shrink-0">
           <div key={lastNumber || 'waiting'} className="animate-ball-pop flex items-center justify-center">
             {lastNumber ? (
               <BingoBall3D 
@@ -299,38 +274,96 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
                 isLatest={true} 
               />
             ) : (
-              <div className="w-14 h-14 rounded-2xl bg-indigo-950/80 border-2 border-dashed border-indigo-500/40 flex items-center justify-center text-indigo-300 text-[10px] text-center p-1">
+              <div className="w-13 h-13 rounded-2xl bg-indigo-950/80 border-2 border-dashed border-indigo-500/40 flex items-center justify-center text-indigo-300 text-[10px] text-center p-1">
                 Esperando...
               </div>
             )}
           </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-              <span className="text-xs font-bold text-white">Última Bola Cantada</span>
-            </div>
-            <p className="text-[11px] text-[#c7c4d8] mt-0.5">
-              {room.drawnNumbers.length} bolas cantadas en la ronda
-            </p>
-          </div>
+          <span className="text-[9px] font-black uppercase text-amber-300 mt-0.5 tracking-wider">
+            Última Bola
+          </span>
         </div>
 
-        {/* Selected Bean Marker indicator */}
-        <div className="flex flex-col items-end">
-          <span className="text-[10px] text-[#c7c4d8]">Marcador:</span>
-          <span className="text-xs font-bold text-white flex items-center gap-1.5 mt-0.5">
-            <GrainMarker type={selectedMarker} size="sm" />
-            <span className="hidden sm:inline">{marker.name}</span>
-          </span>
+        {/* Right: History Sequence + Metadata Header */}
+        <div className="flex-1 min-w-0 flex flex-col gap-1">
+          <div className="flex items-center justify-between text-[11px] font-bold text-[#c7c4d8]">
+            <span className="flex items-center gap-1.5 text-white">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span>Bolas: <strong className="text-indigo-300 font-['Space_Grotesk']">{room.drawnNumbers.length}/75</strong></span>
+            </span>
+            <div className="flex items-center gap-1.5 text-[10px] text-zinc-300 bg-[#0b1326]/60 px-2 py-0.5 rounded-full border border-white/5">
+              <GrainMarker type={selectedMarker} size="sm" />
+              <span className="hidden sm:inline font-semibold">{marker.name}</span>
+            </div>
+          </div>
+
+          {/* Sequential scrollable balls (Excluding the latest ball to avoid duplication) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto py-1 no-scrollbar scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+            {room.drawnNumbers.length <= 1 ? (
+              <span className="text-[10px] text-zinc-500 italic py-1">
+                {room.drawnNumbers.length === 1 ? 'Primera bola de la ronda.' : 'Aún no se han sacado bolas en esta ronda.'}
+              </span>
+            ) : (
+              [...room.drawnNumbers].reverse().slice(1).map((num, i) => {
+                return (
+                  <div key={`${num}_${i}`} className="flex-shrink-0">
+                    <BingoBall3D 
+                      number={num} 
+                      size="sm" 
+                      isLatest={false} 
+                    />
+                  </div>
+                );
+              })
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Sequential History Strip of recent drawn balls */}
-      <RecentBallsHistory drawnNumbers={room.drawnNumbers} />
+      {/* 2. Notifications Placed RIGHT ABOVE the Card Names / Tabs */}
+      {/* Near-Bingo Alert: A tiro de BINGO! */}
+      {nearStatus.isNear && room.status !== 'FINISHED' && (
+        <div className="bg-gradient-to-r from-amber-500/30 via-orange-500/20 to-amber-500/30 border-2 border-amber-400 rounded-2xl p-2 text-center shadow-[0_0_20px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 animate-pulse">
+          <Flame className="w-4 h-4 text-amber-400 flex-shrink-0 animate-bounce" />
+          <span className="text-xs font-black text-white font-['Outfit'] tracking-wide">
+            ¡ESTÁS A 1 NÚMERO DE GANAR! 🔥
+            {nearStatus.missingNumbers.length > 0 && (
+              <span className="text-amber-300 ml-1 font-['Space_Grotesk']">
+                (Falta: {nearStatus.missingNumbers.map(n => `${getLetterForNumber(n)}-${n}`).join(', ')})
+              </span>
+            )}
+          </span>
+        </div>
+      )}
+
+      {/* Match Alert Notification Banner */}
+      {matchNotification && (
+        <div className="bg-gradient-to-r from-emerald-500/30 via-emerald-600/20 to-teal-500/30 border-2 border-emerald-400 rounded-2xl p-2.5 text-center shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 animate-bounce">
+          <BellRing className="w-4 h-4 text-emerald-400 flex-shrink-0 animate-spin" />
+          <span className="text-xs font-black text-white font-['Outfit'] tracking-wide">
+            {matchNotification}
+          </span>
+        </div>
+      )}
+
+      {/* Pattern Completed Celebration Banner */}
+      {winningStatus.isWinner && room.status !== 'FINISHED' && (
+        <div className="bg-gradient-to-r from-amber-500/30 via-yellow-400/40 to-amber-500/30 border-2 border-amber-400 rounded-2xl p-2.5 text-center shadow-[0_0_30px_rgba(245,158,11,0.6)] flex items-center justify-center gap-2 animate-bounce">
+          <Sparkles className="w-5 h-5 text-amber-300 animate-spin flex-shrink-0" />
+          <div className="flex flex-col">
+            <span className="text-xs font-black text-white font-['Outfit'] tracking-wider uppercase">
+              ¡PATRÓN GANADOR COMPLETADO! 🎉
+            </span>
+            <span className="text-[10px] text-amber-200 font-bold">
+              ¡Toca "CANTAR BINGO" abajo para reclamar tu victoria!
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Claim Status Notification */}
       {claimStatus && (
-        <div className={`p-3 rounded-2xl text-xs font-bold flex items-center gap-2 ${
+        <div className={`p-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 ${
           claimStatus.success 
             ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300'
             : 'bg-rose-500/20 border border-rose-500/40 text-rose-300'
@@ -340,7 +373,7 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
         </div>
       )}
 
-      {/* Card Switcher: Highlights the Tab of ANY card that has the newly drawn number */}
+      {/* 3. Card Switcher Tabs */}
       {cards.length > 1 && (
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
           {cards.map((c, idx) => {
@@ -376,21 +409,6 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
               <span>Nuevo</span>
             </button>
           )}
-        </div>
-      )}
-
-      {/* Pattern Completed Celebration Banner */}
-      {winningStatus.isWinner && room.status !== 'FINISHED' && (
-        <div className="bg-gradient-to-r from-amber-500/30 via-yellow-400/40 to-amber-500/30 border-2 border-amber-400 rounded-2xl p-3 text-center shadow-[0_0_30px_rgba(245,158,11,0.6)] flex items-center justify-center gap-2 animate-bounce">
-          <Sparkles className="w-5 h-5 text-amber-300 animate-spin flex-shrink-0" />
-          <div className="flex flex-col">
-            <span className="text-xs font-black text-white font-['Outfit'] tracking-wider uppercase">
-              ¡PATRÓN GANADOR COMPLETADO! 🎉
-            </span>
-            <span className="text-[10px] text-amber-200 font-bold">
-              ¡Toca "CANTAR BINGO" abajo para reclamar tu victoria!
-            </span>
-          </div>
         </div>
       )}
 

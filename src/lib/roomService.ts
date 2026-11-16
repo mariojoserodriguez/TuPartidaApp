@@ -224,7 +224,8 @@ export function subscribeToPlayerCards(
  */
 export async function claimBingo(
   room: Room, 
-  card: BingoCard
+  card: BingoCard,
+  claimerName?: string
 ): Promise<{ success: boolean; message: string }> {
   // Deterministic validation: No human error, no false claims!
   const verification = checkWinningBingo(
@@ -240,17 +241,19 @@ export async function claimBingo(
     };
   }
 
+  const winningName = claimerName?.trim() || card.userName || 'Jugador Criollo';
+
   // Valid winner! Update room status
   const roomRef = doc(db, 'rooms', room.id);
   await updateDoc(roomRef, {
     status: 'FINISHED',
     winnerUserId: card.userId,
-    winnerUserName: card.userName,
+    winnerUserName: winningName,
   });
 
   return { 
     success: true, 
-    message: `¡BINGO VÁLIDO! ${card.userName} ha ganado la ronda.` 
+    message: `¡BINGO VÁLIDO! ${winningName} ha ganado la ronda.` 
   };
 }
 
@@ -278,6 +281,40 @@ export async function updateRoomWinningPattern(
   await updateDoc(roomRef, {
     'config.winningPattern': winningPattern,
   });
+}
+
+/**
+ * Updates host display name on the room
+ */
+export async function updateRoomHostName(
+  roomId: string,
+  hostName: string
+): Promise<void> {
+  const roomRef = doc(db, 'rooms', roomId);
+  await updateDoc(roomRef, {
+    hostName: hostName.trim(),
+  });
+}
+
+/**
+ * Updates player name across all their cards in a room
+ */
+export async function updatePlayerCardsUserName(
+  roomId: string, 
+  userId: string, 
+  newUserName: string
+): Promise<void> {
+  try {
+    const cardsCol = collection(db, 'rooms', roomId, 'cards');
+    const q = query(cardsCol, where('userId', '==', userId));
+    const snap = await getDocs(q);
+    const updates = snap.docs.map((docSnap) => 
+      updateDoc(doc(cardsCol, docSnap.id), { userName: newUserName.trim() })
+    );
+    await Promise.all(updates);
+  } catch (err) {
+    console.error('Error updating player cards user name:', err);
+  }
 }
 
 /**

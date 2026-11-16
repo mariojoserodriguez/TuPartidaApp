@@ -290,11 +290,15 @@ export const GameChat: React.FC<GameChatProps> = ({
 
                       {/* Message Bubble Body */}
                       <div
-                        className={`rounded-2xl p-2.5 text-xs shadow-md ${
-                          isSelf
-                            ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-br-xs'
-                            : 'bg-[#171f33] text-[#dae2fd] border border-white/5 rounded-bl-xs'
-                        }`}
+                        className={
+                          m.type === 'sticker' && m.mediaUrl
+                            ? 'flex flex-col items-end'
+                            : `rounded-2xl p-2.5 text-xs shadow-md ${
+                                isSelf
+                                  ? 'bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-br-xs'
+                                  : 'bg-[#171f33] text-[#dae2fd] border border-white/5 rounded-bl-xs'
+                              }`
+                        }
                       >
                         {/* 1. Text Message */}
                         {m.type === 'text' && (
@@ -305,12 +309,12 @@ export const GameChat: React.FC<GameChatProps> = ({
 
                         {/* 2. Sticker / Image Message */}
                         {m.type === 'sticker' && (
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col gap-1 items-center">
                             {m.mediaUrl ? (
                               <img
                                 src={m.mediaUrl}
                                 alt={m.text || 'Sticker'}
-                                className="max-w-[170px] max-h-[170px] rounded-xl object-contain shadow-sm"
+                                className="w-28 h-28 sm:w-36 sm:h-36 object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.5)] transition-transform hover:scale-105 active:scale-95"
                               />
                             ) : (
                               <div className="flex items-center gap-1.5 font-bold text-amber-200">

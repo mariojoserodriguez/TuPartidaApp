@@ -24,12 +24,14 @@ import {
 
 interface BingoHostViewProps {
   room: Room;
+  userName?: string;
   onLeave: () => void;
   onNextRound?: () => void;
 }
 
 export const BingoHostView: React.FC<BingoHostViewProps> = ({
   room,
+  userName,
   onLeave,
 }) => {
   const [isAutoDrawing, setIsAutoDrawing] = useState(false);
@@ -353,7 +355,7 @@ export const BingoHostView: React.FC<BingoHostViewProps> = ({
       <GameChat
         roomId={room.id}
         userId={room.hostId}
-        userName={room.hostName || 'Anfitrión'}
+        userName={userName || room.hostName || 'Anfitrión'}
         isHost={true}
         chatEnabled={room.config.chatEnabled !== false}
         voiceNotesEnabled={room.config.voiceNotesEnabled !== false}

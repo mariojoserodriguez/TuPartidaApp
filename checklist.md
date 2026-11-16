@@ -30,7 +30,8 @@
 - [x] Diseñar e implementar `firestore.rules` con el subagente especialista y desplegar a Firebase Cloud.
 - [x] Actualizar `firestore.rules`: aplanado de matrices de bingo a listas de 25 elementos (`isValidBingoMatrix`, `isValidBingoMarked`) debido a restricción de Firestore SDK (no soporta arrays anidados). Compilación validada con `--dry-run`.
 - [x] Sanitizar objetos en Firestore (`ignoreUndefinedProperties: true` y valor por defecto en `paymentInfo`).
-- [x] Actualizar `firestore.rules`: soporte para subcolección de chat en tiempo real (`/rooms/{roomId}/messages/{messageId}`), flags de moderación de chat en configuración de sala (`chatEnabled`, `voiceNotesEnabled`) y validador de mensajes (`isValidMessage`). Compilación verificada con `--dry-run`.
+- [x] Actualizar `firestore.rules`: soporte para subcolección de chat en tiempo real (`/rooms/{roomId}/messages/{messageId}`), flags de moderación de chat en configuración de sala (`chatEnabled`, `voiceNotesEnabled`) y validador de mensajes (`isValidMessage`). Límite de tamaño de `mediaUrl` actualizado a 70.000 caracteres para permitir imágenes base64 inline (stickers y GIFs). Compilación verificada con `--dry-run`.
+- [x] Actualizar `firestore.rules`: incremento del límite de tamaño en mensajes para `mediaUrl` a 250.000 caracteres (soporte de stickers GIF animados fluidos de alto frame rate) y `audioData` a 150.000 caracteres (notas de voz extendidas en Base64). Compilación y compatibilidad verificadas con `--dry-run`.
 - [x] Configurar script de despliegue controlado `npm run deploy:clean` en `package.json`.
 
 ---
@@ -88,6 +89,15 @@
   - [x] Balota 3D esférica y carrusel secuencial de salida de bolas en el panel del jugador.
   - [x] Corneta/Voz de la Cantadera en el dispositivo del jugador (con botón de activar/silenciar en la barra superior).
   - [x] Modal de edición de nombre de usuario en el Header (`Header.tsx`): El jugador puede personalizar su nombre en la mesa ("Mario", "Tía Carmen", etc.) con guardado automático en Firebase Auth y almacenamiento local.
+  - [x] Unificación del panel de bolas cantadas en el jugador: la última bola cantada y la secuencia horizontal de bolas previas se integraron en una sola tarjeta compacta, optimizando más de 120px de espacio vertical en pantallas móviles.
+    - Se excluye la bola actual de la secuencia horizontal de la derecha para evitar que aparezca duplicada al lado de la esfera principal.
+    - Barra de desplazamiento horizontal nativa del navegador completamente oculta (`.no-scrollbar`), permitiendo deslizamiento táctil y con rueda sin barras grises antiestéticas.
+  - [x] Reubicación de notificaciones ("¡Salió tu número!", "A tiro de BINGO" y "Patrón Ganador"): ahora se muestran estratégicamente justo encima de las pestañas de los cartones (`Cartón #1`, `Cartón #2`), evitando solapamientos con la bola cantada.
+  - [x] Erradicación de término "balotas": sustituido por completo por el término criollo "Bolas Cantadas" en toda la interfaz y en el modal de ceremonia de ganador.
+  - [x] Sincronización del nombre del jugador/anfitrión en tiempo real:
+    - El nombre editado en el Header se propaga a la sala (`updateRoomHostName`) y a todos los cartones del jugador (`updatePlayerCardsUserName`).
+    - Al cantar victoria (`claimBingo`), se registra el nombre real actualizado (`claimerName`) en `winnerUserName`, asegurando que el podio muestre "Campeón: Jugador 1" en lugar del genérico "Jugador Criollo".
+  - [x] Ajuste de padding inferior (`pb-36`): la fila 5 del cartón 5x5 y la leyenda de progreso `(Llevas X/25 • Faltan Y para cartón lleno)` quedan siempre 100% visibles y libres de obstrucción por el botón flotante inferior.
   - [x] Modal de Ceremonia de Ganador en tiempo real con estadísticas y compartir multiplataforma.
   - [x] Botón ¡CANTAR BINGO! con validación instantánea y celebración con confeti.
 - [x] **Gran Celebración de Victoria en Tiempo Real (`src/lib/celebration.ts`):**
@@ -102,8 +112,18 @@
   - [x] Botón flotante circular con diseño WhatsApp y contador de mensajes no leídos.
   - [x] Mensajería en tiempo real con Firestore subcolección `rooms/{roomId}/messages` (reglas desplegadas).
   - [x] Grabación y reproducción de micro notas de voz de máximo 5 segundos (`VoiceNoteRecorder.tsx` y `VoiceNotePlayer.tsx`) con compresión ultra ligera y temporizador.
-  - [x] Galería de stickers criollos y expresiones venezolanas (`StickerPicker.tsx`).
-  - [x] Subida de stickers, GIFs o memes directamente desde la galería del teléfono o PC con auto-compresión.
+  - [x] Galería de stickers criollos vectoriales SVG (`src/lib/stickers.ts`) que erradican fallos de fuentes en Windows y se envían como stickers gráficos de tamaño completo.
+  - [x] Pestaña **"Mis Stickers"** guardada en `localStorage` (`tupartida_my_stickers`): cualquier imagen o GIF subido o creado queda almacenado permanentemente en la galería personal del usuario para reutilizarlo en cualquier momento.
+  - [x] Botón **"Subir desde tu dispositivo"** con soporte para imágenes y GIFs animados:
+    - Compresión automática en el navegador (`src/lib/gifCompressor.ts` vía `omggif` + `gifenc`):
+      - **Eliminación inteligente de fondo blanco exterior** (`removeEdgeConnectedWhiteBackground` por inundación BFS): detecta y recorta el fondo blanco cuadrado alrededor del personaje preservando detalles blancos internos (ojos, barriga, patas).
+      - **Velocidad rítmica real y alta fluidez:** normalización de cadencia (corrige retrasos artificiales para GIFs de alta velocidad a 20-30ms) y soporte de hasta 55 fotogramas por ciclo.
+      - **100% transparencia alfa y peso pluma:** formato `rgba4444` con descarte a fondo limpio (`dispose: 2`).
+    - Reglas de Firestore desplegadas con límite de `mediaUrl` a 250.000 caracteres para admitir GIFs fluidos de alta tasa de refresco.
+    - Importación dinámica y code-splitting de `omggif` y `gifenc`: se cargan bajo demanda únicamente al comprimir, eliminando dependencias estáticas que provocaban pantallas blancas al recargar.
+    - Implementación de `ErrorBoundary` (`src/components/common/ErrorBoundary.tsx`): captura cualquier excepción en tiempo de ejecución mostrando una tarjeta de recuperación estilizada con opción de recarga en lugar de una pantalla en blanco.
+    - Erradicación total de alertas del navegador (`window.alert`): reemplazado por el nuevo componente modal `AppAlertModal.tsx` con estética oscura, ambient glow y spinner de carga en vivo.
+  - [x] **Creador de Stickers integrado con Imagen o Video** (`StickerPicker.tsx`): permite capturar fotos o fotogramas de video, añadir frases en mayúsculas personalizadas (ej. *"¡TRAMPA!"*) y generar stickers con contorno blanco estilo WhatsApp.
   - [x] Panel de moderación para el Anfitrión: activar/silenciar chat general, bloquear/permitir notas de voz y eliminación de mensajes inapropiados.
 
 ---

@@ -73,8 +73,8 @@ rules_version = '2';
 //   - type: string (required, enum: 'text', 'sticker', 'audio')
 //   - createdAt: int or timestamp (required)
 //   - text: string (optional, max 500 chars)
-//   - mediaUrl: string (optional, max 2000 chars)
-//   - audioData: string (optional, max 70000 chars - Base64 audio URI)
+//   - mediaUrl: string (optional, max 250000 chars)
+//   - audioData: string (optional, max 150000 chars - Base64 audio URI)
 //   - audioDuration: number (optional, 0-10 seconds)
 //   - system: bool (optional)
 //
@@ -226,8 +226,8 @@ service cloud.firestore {
         data.type in ['text', 'sticker', 'audio'] &&
         (data.createdAt is int || data.createdAt is timestamp) &&
         (!('text' in data) || (data.text is string && data.text.size() <= 500)) &&
-        (!('mediaUrl' in data) || (data.mediaUrl is string && data.mediaUrl.size() <= 2000)) &&
-        (!('audioData' in data) || (data.audioData is string && data.audioData.size() <= 70000)) &&
+        (!('mediaUrl' in data) || (data.mediaUrl is string && data.mediaUrl.size() <= 250000)) &&
+        (!('audioData' in data) || (data.audioData is string && data.audioData.size() <= 150000)) &&
         (!('audioDuration' in data) || (data.audioDuration is number && data.audioDuration >= 0 && data.audioDuration <= 10)) &&
         (!('system' in data) || data.system is bool);
     }
