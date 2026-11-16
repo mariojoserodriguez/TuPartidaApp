@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Room, BingoCard, MarkerType, MARKERS } from '../types';
 import { getLetterForNumber, checkNearBingo, checkWinningBingo, getPatternDisplayName } from '../lib/bingoEngine';
-import { claimBingo, generatePlayerCards } from '../lib/roomService';
-import { sounds, speakBingoCallout, triggerHapticMatch, triggerNearBingoVibrate, triggerCanClaimBingoVibrate } from '../lib/audio';
+import { claimBingo, generatePlayerCards, updateCardMarked } from '../lib/roomService';
+import { sounds, speakBingoCallout, triggerHapticMatch, triggerNearBingoVibrate, triggerCanClaimBingoVibrate, triggerInvalidMarkVibrate } from '../lib/audio';
 import { triggerVictoryCelebration } from '../lib/celebration';
 import { GrainMarker } from './GrainMarker';
 import { BingoBall3D } from './BingoBall3D';
@@ -19,7 +19,9 @@ import {
   BellRing,
   Flame,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Trophy,
+  X
 } from 'lucide-react';
 
 interface BingoPlayerViewProps {
@@ -40,7 +42,17 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
   onLeave,
 }) => {
   const [activeCardIndex, setActiveCardIndex] = useState(0);
-  const [markedState, setMarkedState] = useState<Record<string, boolean[]>>({});
+  const marksStorageKey = `tupartida_marks_${room.id}_r${room.currentRound}`;
+
+  // Persistent marks: restore from localStorage so grains are NEVER lost on reload or re-entering
+  const [markedState, setMarkedState] = useState<Record<string, boolean[]>>(() => {
+    try {
+      const raw = localStorage.getItem(`tupartida_marks_${room.id}_r${room.currentRound}`);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    return {};
+  });
+
   const [claimStatus, setClaimStatus] = useState<{ message: string; success: boolean } | null>(null);
   const [isClaiming, setIsClaiming] = useState(false);
   const [matchNotification, setMatchNotification] = useState<string | null>(null);
@@ -98,11 +110,12 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
     }
   }, [winningStatus.isWinner, room.status]);
 
-  // Initialize marked array if not in state
+  // Initialize marked array from local cache, Firestore card, or fallback
   const getCardMarks = (cardId: string): boolean[] => {
     if (markedState[cardId]) return markedState[cardId];
-    if (activeCard && activeCard.marked && activeCard.marked.length === 25) {
-      return activeCard.marked;
+    const target = cards.find(c => c.id === cardId) || activeCard;
+    if (target && target.marked && target.marked.length === 25) {
+      return target.marked;
     }
     const initial = Array(25).fill(false);
     initial[12] = true; // Center free (index 12)
@@ -119,11 +132,28 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
       setMatchNotification(null);
     }
 
+    const currentMarks = getCardMarks(cardId);
+    const willBeMarked = !currentMarks[idx];
+
+    // If player places a grain on a number that HAS NOT been drawn yet:
+    // double-buzz warning vibration so they notice immediately!
+    if (willBeMarked && clickedVal && !drawnSet.has(clickedVal)) {
+      triggerInvalidMarkVibrate();
+    }
+
+    const nextMarks = [...currentMarks];
+    nextMarks[idx] = willBeMarked;
+
     setMarkedState((prev) => {
-      const current = prev[cardId] ? [...prev[cardId]] : [...getCardMarks(cardId)];
-      current[idx] = !current[idx];
-      return { ...prev, [cardId]: current };
+      const updated = { ...prev, [cardId]: nextMarks };
+      try {
+        localStorage.setItem(marksStorageKey, JSON.stringify(updated));
+      } catch {}
+      return updated;
     });
+
+    // Sync to Firestore in background
+    updateCardMarked(room.id, cardId, nextMarks);
   };
 
   const toggleVoice = () => {
@@ -135,6 +165,9 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
   // Reset local marks and open ceremony modal when new round begins
   useEffect(() => {
     setMarkedState({});
+    try {
+      localStorage.removeItem(marksStorageKey);
+    } catch {}
     setClaimStatus(null);
     setShowCeremonyModal(true);
     nearFiredRef.current = false;
@@ -174,7 +207,7 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
         triggerHapticMatch();
 
         const cardLabels = matchingCards.map(m => `Cartón #${m.idx + 1}`).join(', ');
-        setMatchNotification(`¡Salió el ${letter}-${num} en tu ${cardLabels}! 🫘`);
+        setMatchNotification(`¡Salió el ${letter}-${num} en tu ${cardLabels}! ✨`);
         setTimeout(() => setMatchNotification(null), 4500);
       } else {
         sounds.playBallDrop();
@@ -320,58 +353,85 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
         </div>
       </div>
 
-      {/* 2. Notifications Placed RIGHT ABOVE the Card Names / Tabs */}
-      {/* Near-Bingo Alert: A tiro de BINGO! */}
-      {nearStatus.isNear && room.status !== 'FINISHED' && (
-        <div className="bg-gradient-to-r from-amber-500/30 via-orange-500/20 to-amber-500/30 border-2 border-amber-400 rounded-2xl p-2 text-center shadow-[0_0_20px_rgba(245,158,11,0.5)] flex items-center justify-center gap-2 animate-pulse">
-          <Flame className="w-4 h-4 text-amber-400 flex-shrink-0 animate-bounce" />
-          <span className="text-xs font-black text-white font-['Outfit'] tracking-wide">
-            ¡ESTÁS A 1 NÚMERO DE GANAR! 🔥
-            {nearStatus.missingNumbers.length > 0 && (
-              <span className="text-amber-300 ml-1 font-['Space_Grotesk']">
-                (Falta: {nearStatus.missingNumbers.map(n => `${getLetterForNumber(n)}-${n}`).join(', ')})
+      {/* 2. Reserved Fixed-Height Notification Slot (Zero Layout Shift) */}
+      <div className="w-full h-11 flex-shrink-0 flex items-center">
+        {claimStatus ? (
+          <div className={`w-full h-full px-3 rounded-xl text-xs font-bold flex items-center justify-between gap-2 shadow-md ${
+            claimStatus.success 
+              ? 'bg-emerald-500/20 border border-emerald-500/50 text-emerald-200'
+              : 'bg-rose-500/20 border border-rose-500/50 text-rose-200'
+          }`}>
+            <div className="flex items-center gap-2 truncate">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate">{claimStatus.message}</span>
+            </div>
+            <button 
+              type="button"
+              onClick={() => setClaimStatus(null)}
+              className="p-1 hover:bg-white/10 rounded-md transition-colors flex-shrink-0"
+              title="Cerrar"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : winningStatus.isWinner && room.status !== 'FINISHED' ? (
+          <div className="w-full h-full px-3 bg-gradient-to-r from-amber-500/30 via-yellow-400/30 to-amber-500/30 border-2 border-amber-400 rounded-xl shadow-[0_0_25px_rgba(245,158,11,0.5)] flex items-center justify-between gap-2 animate-pulse">
+            <div className="flex items-center gap-2 min-w-0">
+              <Sparkles className="w-4 h-4 text-amber-300 animate-spin flex-shrink-0" />
+              <span className="text-xs font-black text-amber-100 font-['Outfit'] tracking-wider uppercase truncate">
+                ¡PATRÓN GANADOR COMPLETADO! 🎉
               </span>
-            )}
-          </span>
-        </div>
-      )}
-
-      {/* Match Alert Notification Banner */}
-      {matchNotification && (
-        <div className="bg-gradient-to-r from-emerald-500/30 via-emerald-600/20 to-teal-500/30 border-2 border-emerald-400 rounded-2xl p-2.5 text-center shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 animate-bounce">
-          <BellRing className="w-4 h-4 text-emerald-400 flex-shrink-0 animate-spin" />
-          <span className="text-xs font-black text-white font-['Outfit'] tracking-wide">
-            {matchNotification}
-          </span>
-        </div>
-      )}
-
-      {/* Pattern Completed Celebration Banner */}
-      {winningStatus.isWinner && room.status !== 'FINISHED' && (
-        <div className="bg-gradient-to-r from-amber-500/30 via-yellow-400/40 to-amber-500/30 border-2 border-amber-400 rounded-2xl p-2.5 text-center shadow-[0_0_30px_rgba(245,158,11,0.6)] flex items-center justify-center gap-2 animate-bounce">
-          <Sparkles className="w-5 h-5 text-amber-300 animate-spin flex-shrink-0" />
-          <div className="flex flex-col">
-            <span className="text-xs font-black text-white font-['Outfit'] tracking-wider uppercase">
-              ¡PATRÓN GANADOR COMPLETADO! 🎉
-            </span>
-            <span className="text-[10px] text-amber-200 font-bold">
-              ¡Toca "CANTAR BINGO" abajo para reclamar tu victoria!
+            </div>
+            <span className="text-[10px] text-amber-300 font-black shrink-0 uppercase bg-amber-500/30 px-2 py-0.5 rounded-full border border-amber-400/50">
+              ¡Canta abajo!
             </span>
           </div>
-        </div>
-      )}
-
-      {/* Claim Status Notification */}
-      {claimStatus && (
-        <div className={`p-2.5 rounded-2xl text-xs font-bold flex items-center gap-2 ${
-          claimStatus.success 
-            ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300'
-            : 'bg-rose-500/20 border border-rose-500/40 text-rose-300'
-        }`}>
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
-          <span>{claimStatus.message}</span>
-        </div>
-      )}
+        ) : nearStatus.isNear && room.status !== 'FINISHED' ? (
+          <div className="w-full h-full px-3 bg-gradient-to-r from-amber-500/20 via-orange-500/25 to-amber-500/20 border border-amber-400/80 rounded-xl shadow-[0_0_18px_rgba(245,158,11,0.35)] flex items-center justify-between gap-2 animate-pulse">
+            <div className="flex items-center gap-2 min-w-0">
+              <Flame className="w-4 h-4 text-amber-400 flex-shrink-0 animate-bounce" />
+              <span className="text-xs font-black text-white font-['Outfit'] tracking-wide truncate">
+                ¡A 1 NÚMERO DE GANAR! 🔥
+                {nearStatus.missingNumbers.length > 0 && (
+                  <span className="text-amber-300 ml-1 font-['Space_Grotesk'] font-bold">
+                    (Falta: {nearStatus.missingNumbers.map(n => `${getLetterForNumber(n)}-${n}`).join(', ')})
+                  </span>
+                )}
+              </span>
+            </div>
+          </div>
+        ) : matchNotification ? (
+          <div className="w-full h-full px-3 bg-gradient-to-r from-emerald-500/25 via-emerald-600/20 to-teal-500/25 border border-emerald-400/80 rounded-xl shadow-[0_0_18px_rgba(16,185,129,0.35)] flex items-center justify-between gap-2 animate-pulse">
+            <div className="flex items-center gap-2 min-w-0">
+              <BellRing className="w-4 h-4 text-emerald-400 flex-shrink-0 animate-bounce" />
+              <span className="text-xs font-black text-white font-['Outfit'] tracking-wide truncate">
+                {matchNotification}
+              </span>
+            </div>
+            <button 
+              type="button"
+              onClick={() => setMatchNotification(null)}
+              className="text-white/60 hover:text-white p-1 hover:bg-white/10 rounded-md transition-colors flex-shrink-0"
+              title="Cerrar aviso"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <div className="w-full h-full px-3 rounded-xl border border-white/5 bg-[#131b2e]/50 flex items-center justify-between text-xs text-[#c7c4d8]">
+            <div className="flex items-center gap-2 min-w-0">
+              <Trophy className="w-3.5 h-3.5 text-amber-400/80 flex-shrink-0" />
+              <span className="truncate text-slate-300">
+                Ronda {room.currentRound}: <strong className="text-amber-300 font-['Outfit'] font-black">{getPatternDisplayName(room.config.winningPattern)}</strong>
+              </span>
+            </div>
+            <span className="text-[10px] text-slate-400 font-medium shrink-0 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-ping" />
+              <span>Atento al bombo</span>
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* 3. Card Switcher Tabs */}
       {cards.length > 1 && (
@@ -414,15 +474,15 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
 
       {/* The 5x5 BINGO Card with Side Navigation Arrows & Organic Grain Markers */}
       {activeCard ? (
-        <div className="flex flex-col gap-2 max-w-sm mx-auto w-full relative px-2 sm:px-0">
+        <div className="flex flex-col gap-2 max-w-sm sm:max-w-md mx-auto w-full relative px-7 sm:px-9">
           <div className="relative flex items-center justify-center">
-            {/* Left Navigation Arrow */}
+            {/* Left Navigation Arrow - Separated from the card */}
             {cards.length > 1 && (
               <button
                 type="button"
                 onClick={handlePrevCard}
                 aria-label="Cartón anterior"
-                className="absolute -left-3 sm:-left-5 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-[#171f33]/95 hover:bg-indigo-600 border border-white/20 hover:border-indigo-400 text-white shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                className="absolute -left-1 sm:-left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-[#171f33] hover:bg-indigo-600 border border-white/20 hover:border-indigo-400 text-white shadow-[0_4px_20px_rgba(0,0,0,0.6)] flex items-center justify-center transition-all hover:scale-110 active:scale-95"
                 title="Ir al cartón anterior"
               >
                 <ChevronLeft className="w-5 h-5 text-indigo-200" />
@@ -450,6 +510,7 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
                   const wasDrawn = isCenter || drawnSet.has(val);
                   const isLatestMatch = !isCenter && val === lastNumber && !isMarked;
                   const isWinningCell = winningCellsSet.has(idx);
+                  const isInvalidMark = isMarked && !wasDrawn; // Marked but has NOT come out yet!
 
                   return (
                     <button
@@ -460,6 +521,8 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
                           ? 'bg-gradient-to-br from-amber-500/50 via-yellow-400/40 to-amber-600/50 border-2 border-amber-400 text-amber-100 scale-105 z-20 shadow-[0_0_22px_rgba(251,191,36,0.9)] animate-pulse'
                           : isCenter
                           ? 'bg-gradient-to-br from-indigo-600 to-indigo-800 text-amber-300 text-xs shadow-md'
+                          : isInvalidMark
+                          ? 'bg-[#2b120c] border-2 border-orange-500 text-orange-200 shadow-[0_0_18px_rgba(249,115,22,0.8)] ring-2 ring-orange-500/30'
                           : isMarked
                           ? 'bg-[#222a3d] border-2 border-indigo-400 text-white shadow-inner'
                           : isLatestMatch
@@ -491,6 +554,16 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
                             </div>
                           )}
 
+                          {/* Warning badge if grain was placed on a number that hasn't been drawn */}
+                          {isInvalidMark && (
+                            <span 
+                              className="absolute -top-1 -right-1 text-[8px] bg-orange-500 text-black px-1.5 py-0.2 rounded-full font-black uppercase shadow-md animate-bounce"
+                              title="¡Atención! Este número aún no ha salido en el bombo"
+                            >
+                              ¡Ojo!
+                            </span>
+                          )}
+
                           {/* Flashing badge on the newly drawn matching number */}
                           {isLatestMatch && (
                             <span className="absolute -top-1.5 -right-1 text-[8px] bg-emerald-400 text-black px-1 rounded-full font-black uppercase shadow-sm">
@@ -505,13 +578,13 @@ export const BingoPlayerView: React.FC<BingoPlayerViewProps> = ({
               </div>
             </div>
 
-            {/* Right Navigation Arrow */}
+            {/* Right Navigation Arrow - Separated from the card */}
             {cards.length > 1 && (
               <button
                 type="button"
                 onClick={handleNextCard}
                 aria-label="Siguiente cartón"
-                className="absolute -right-3 sm:-right-5 top-1/2 -translate-y-1/2 z-30 w-9 h-9 rounded-full bg-[#171f33]/95 hover:bg-indigo-600 border border-white/20 hover:border-indigo-400 text-white shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                className="absolute -right-1 sm:-right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-[#171f33] hover:bg-indigo-600 border border-white/20 hover:border-indigo-400 text-white shadow-[0_4px_20px_rgba(0,0,0,0.6)] flex items-center justify-center transition-all hover:scale-110 active:scale-95"
                 title="Ir al siguiente cartón"
               >
                 <ChevronRight className="w-5 h-5 text-indigo-200" />

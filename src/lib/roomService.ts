@@ -220,6 +220,22 @@ export function subscribeToPlayerCards(
 }
 
 /**
+ * Updates marked spots for a specific card in a room
+ */
+export async function updateCardMarked(
+  roomId: string, 
+  cardId: string, 
+  marked: boolean[]
+): Promise<void> {
+  try {
+    const cardRef = doc(db, 'rooms', roomId, 'cards', cardId);
+    await updateDoc(cardRef, { marked });
+  } catch (err) {
+    console.error('Error updating card marks in Firestore:', err);
+  }
+}
+
+/**
  * Claims BINGO and deterministically validates it
  */
 export async function claimBingo(

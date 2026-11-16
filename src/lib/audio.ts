@@ -318,6 +318,17 @@ export function triggerHapticMatch() {
   }
 }
 
+/**
+ * Double-buzz warning vibration when player marks a number that has NOT been drawn yet
+ */
+export function triggerInvalidMarkVibrate() {
+  if (typeof window !== 'undefined' && 'navigator' in window && 'vibrate' in navigator) {
+    try {
+      navigator.vibrate([120, 60, 120]);
+    } catch {}
+  }
+}
+
 // Spanish numbers 1 to 75 written as words for clean natural pronunciation
 const SPANISH_NUMBERS: Record<number, string> = {
   1: 'uno', 2: 'dos', 3: 'tres', 4: 'cuatro', 5: 'cinco',

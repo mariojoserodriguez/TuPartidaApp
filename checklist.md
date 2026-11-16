@@ -79,7 +79,11 @@
     - Lenteja Marrón tradicional biconvexa con borde rim.
     - Sello Neón Arcade con aura luminosa.
     - **Posicionamiento y rotación orgánica:** Los granos no caen alineados rígidamente; cada casilla tiene su propio ángulo de rotación, ligera dispersión y variación de escala natural como en una mesa real.
-  - [x] Flechas de navegación a los lados del cartón (`<` y `>`) para cambiar cómodamente entre cartones en pantallas táctiles y PC.
+  - [x] Espacio de notificaciones reservado con altura fija (`h-11` / 44px): previene saltos bruscos (layout shifts) del cartón cuando aparecen o expiran las alertas. En reposo muestra el patrón activo de la ronda (`Ronda X: [Nombre de Patrón] • Atento al bombo`) y al activarse un evento muestra con máxima prioridad: Reclamo de victoria > Patrón completado > A tiro de BINGO > Número cantado en cartón con botón de cierre manual.
+  - [x] Corrección de glifo en Windows: reemplazo del emoji de caraota en el mensaje de número cantado por destellos (`✨`) para erradicar el carácter no soportado en navegadores de escritorio.
+  - [x] Flechas de navegación a los lados del cartón (`<` y `>`) separadas y con padding adecuado para evitar solapamientos con las casillas del cartón.
+  - [x] Persistencia de granos marcados: se sincronizan en tiempo real en `localStorage` (`tupartida_marks_${room.id}_r${round}`) y Firestore (`updateCardMarked`), asegurando que al recargar la página o volver del Hub no se pierdan las caraotas/maíz marcados. Se limpian automáticamente al comenzar una nueva ronda.
+  - [x] Detección de número no cantado (marca inválida): si el jugador coloca por error un grano en una casilla cuyo número aún no ha salido en el bombo, se resalta con borde naranja neón (`border-orange-500`), badge animado `¡Ojo!` y doble vibración de alerta (`triggerInvalidMarkVibrate()`) para que el usuario se dé cuenta de inmediato y pueda removerlo.
   - [x] Leyenda dinámica de estado debajo del cartón: `(Llevas X/25 • Faltan Y para cartón lleno)`.
   - [x] Paginador secuencial de cartones (#1, #2, #3, #4) indexado de forma determinista para erradicar cualquier duplicado histórico.
   - [x] Detección de **Patrón Ganador Completado (Línea, Diagonal, 4 Esquinas, Cartón Lleno)**: Animación zoom (`scale-105`), resplandor dorado pulsante en las casillas ganadoras y botón inferior de BINGO en estado de alerta máxima para cantar la victoria.
