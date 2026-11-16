@@ -20,10 +20,13 @@ rules_version = '2';
 //   - drawnNumbers: list (required, max 75 ints between 1-75) - Numbers drawn in the current round
 //   - config: map (required) - Configuration settings
 //       - cardsPolicy: string (required, enum: 'REUSABLE', 'DISPOSABLE')
-//       - winningPattern: string (required, enum: 'LINE', 'FOUR_CORNERS', 'FULL_HOUSE')
+//       - winningPattern: string (required, enum: 'LINE', 'DIAGONAL', 'FOUR_CORNERS', 'FULL_HOUSE')
 //       - pricePerCard: number (optional, 0-1,000,000)
 //       - targetAmount: number (optional, 0-1,000,000,000)
 //       - causeDescription: string (optional, max 500 chars)
+//       - callerVoiceGender: string (optional, enum: 'female', 'male')
+//       - chatEnabled: bool (optional)
+//       - voiceNotesEnabled: bool (optional)
 //       - paymentInfo: map (optional) - Payment details for pro-fondos
 //           - pagoMovilBank: string (optional, max 100 chars)
 //           - pagoMovilPhone: string (optional, max 30 chars)
@@ -42,8 +45,8 @@ rules_version = '2';
 //   - userId: string (required, immutable, 1-128 chars) - Player UID
 //   - userName: string (required, 1-50 chars) - Player display name
 //   - cardIndex: int (required, 1-10, immutable) - Card number for the player
-//   - matrix: list of 5 lists of 5 ints (required, immutable) - 5x5 Bingo matrix
-//   - marked: list of 5 lists of 5 bools (required) - 5x5 Marker status
+//   - matrix: list of 25 ints (required, immutable) - Flattened 5x5 Bingo matrix (0-24)
+//   - marked: list of 25 bools (required) - Flattened 5x5 Marker status (0-24)
 //   - isWinner: bool (required) - Win claim flag
 //
 // Subcollection: /rooms/{roomId}/tickets/{ticketId}
@@ -59,6 +62,21 @@ rules_version = '2';
 //   - paymentRef: string (optional, 1-100 chars) - Payment reference code
 //   - reservedAt: int or timestamp (optional) - Reservation epoch ms
 //   - reservedUntil: int or timestamp (optional) - Reservation expiration epoch ms
+//
+// Subcollection: /rooms/{roomId}/messages/{messageId}
+// Document ID: auto-generated or custom message ID string
+// Fields:
+//   - id: string (optional, 1-64 chars)
+//   - roomId: string (required, immutable, must match parent roomId)
+//   - userId: string (required, 1-128 chars) - Author UID
+//   - userName: string (required, 1-50 chars) - Author display name
+//   - type: string (required, enum: 'text', 'sticker', 'audio')
+//   - createdAt: int or timestamp (required)
+//   - text: string (optional, max 500 chars)
+//   - mediaUrl: string (optional, max 2000 chars)
+//   - audioData: string (optional, max 70000 chars - Base64 audio URI)
+//   - audioDuration: number (optional, 0-10 seconds)
+//   - system: bool (optional)
 //
 // Collection: /users/{userId}
 // Document ID: userId matching request.auth.uid
@@ -124,12 +142,15 @@ service cloud.firestore {
     function isValidRoomConfig(config) {
       return config is map &&
         config.keys().hasAll(['cardsPolicy', 'winningPattern']) &&
-        config.keys().hasOnly(['cardsPolicy', 'winningPattern', 'pricePerCard', 'targetAmount', 'causeDescription', 'paymentInfo']) &&
+        config.keys().hasOnly(['cardsPolicy', 'winningPattern', 'pricePerCard', 'targetAmount', 'causeDescription', 'paymentInfo', 'callerVoiceGender', 'chatEnabled', 'voiceNotesEnabled']) &&
         config.cardsPolicy in ['REUSABLE', 'DISPOSABLE'] &&
-        config.winningPattern in ['LINE', 'FOUR_CORNERS', 'FULL_HOUSE'] &&
+        config.winningPattern in ['LINE', 'DIAGONAL', 'FOUR_CORNERS', 'FULL_HOUSE'] &&
         (!('pricePerCard' in config) || (config.pricePerCard is number && config.pricePerCard >= 0 && config.pricePerCard <= 1000000)) &&
         (!('targetAmount' in config) || (config.targetAmount is number && config.targetAmount >= 0 && config.targetAmount <= 1000000000)) &&
         (!('causeDescription' in config) || (config.causeDescription is string && config.causeDescription.size() <= 500)) &&
+        (!('callerVoiceGender' in config) || (config.callerVoiceGender is string && config.callerVoiceGender in ['female', 'male'])) &&
+        (!('chatEnabled' in config) || config.chatEnabled is bool) &&
+        (!('voiceNotesEnabled' in config) || config.voiceNotesEnabled is bool) &&
         (!('paymentInfo' in config) || isValidPaymentInfo(config.paymentInfo));
     }
 
@@ -154,24 +175,14 @@ service cloud.firestore {
         (!('winnerUserName' in data) || (data.winnerUserName is string && data.winnerUserName.size() > 0 && data.winnerUserName.size() <= 50));
     }
 
-    // Validates 5x5 Bingo number matrix
+    // Validates 5x5 Bingo number matrix (flattened 25 elements list)
     function isValidBingoMatrix(matrix) {
-      return matrix is list && matrix.size() == 5 &&
-        matrix[0] is list && matrix[0].size() == 5 &&
-        matrix[1] is list && matrix[1].size() == 5 &&
-        matrix[2] is list && matrix[2].size() == 5 &&
-        matrix[3] is list && matrix[3].size() == 5 &&
-        matrix[4] is list && matrix[4].size() == 5;
+      return matrix is list && matrix.size() == 25;
     }
 
-    // Validates 5x5 Bingo marked boolean matrix
+    // Validates 5x5 Bingo marked boolean matrix (flattened 25 elements list)
     function isValidBingoMarked(marked) {
-      return marked is list && marked.size() == 5 &&
-        marked[0] is list && marked[0].size() == 5 &&
-        marked[1] is list && marked[1].size() == 5 &&
-        marked[2] is list && marked[2].size() == 5 &&
-        marked[3] is list && marked[3].size() == 5 &&
-        marked[4] is list && marked[4].size() == 5;
+      return marked is list && marked.size() == 25;
     }
 
     // Validates Bingo Card document data model
@@ -202,6 +213,23 @@ service cloud.firestore {
         (!('paymentRef' in data) || (data.paymentRef is string && data.paymentRef.size() <= 100)) &&
         (!('reservedAt' in data) || data.reservedAt is int || data.reservedAt is timestamp) &&
         (!('reservedUntil' in data) || data.reservedUntil is int || data.reservedUntil is timestamp);
+    }
+
+    // Validates in-room chat message document data model
+    function isValidMessage(data, roomId) {
+      return data.keys().hasAll(['roomId', 'userId', 'userName', 'type', 'createdAt']) &&
+        data.keys().hasOnly(['id', 'roomId', 'userId', 'userName', 'type', 'text', 'mediaUrl', 'audioData', 'audioDuration', 'createdAt', 'system']) &&
+        (!('id' in data) || (data.id is string && data.id.size() <= 64)) &&
+        data.roomId == roomId &&
+        data.userId is string && data.userId.size() > 0 && data.userId.size() <= 128 &&
+        data.userName is string && data.userName.size() > 0 && data.userName.size() <= 50 &&
+        data.type in ['text', 'sticker', 'audio'] &&
+        (data.createdAt is int || data.createdAt is timestamp) &&
+        (!('text' in data) || (data.text is string && data.text.size() <= 500)) &&
+        (!('mediaUrl' in data) || (data.mediaUrl is string && data.mediaUrl.size() <= 2000)) &&
+        (!('audioData' in data) || (data.audioData is string && data.audioData.size() <= 70000)) &&
+        (!('audioDuration' in data) || (data.audioDuration is number && data.audioDuration >= 0 && data.audioDuration <= 10)) &&
+        (!('system' in data) || data.system is bool);
     }
 
     // Validates User Public Profile document data model (strictly non-PII)
@@ -319,6 +347,26 @@ service cloud.firestore {
 
         // Only room host can delete tickets
         allow delete: if isRoomHost(roomId);
+      }
+
+      // =============================================================
+      // Subcollection: Real-Time In-Room Messages (Chat)
+      // =============================================================
+      match /messages/{messageId} {
+        // Authenticated users in the room can read chat messages
+        allow read: if isAuthenticated();
+
+        // Authenticated user can send a message if they match the author
+        allow create: if isAuthenticated() &&
+                         request.resource.data.userId == request.auth.uid &&
+                         isValidMessage(request.resource.data, roomId);
+
+        // Messages are immutable once posted
+        allow update: if false;
+
+        // The message author or the room host can delete messages (moderation)
+        allow delete: if isAuthenticated() &&
+                         (resource.data.userId == request.auth.uid || isRoomHost(roomId));
       }
     }
 

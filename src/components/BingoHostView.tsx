@@ -1,50 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { Room } from '../types';
-import { drawNextBall } from '../lib/roomService';
-import { getLetterForNumber } from '../lib/bingoEngine';
-import { sounds } from '../lib/audio';
-import confetti from 'canvas-confetti';
+import { Room, BingoWinningPattern } from '../types';
+import { drawNextBall, startNextRound, finishRoom, updateCallerVoiceGender, updateRoomWinningPattern } from '../lib/roomService';
+import { getLetterForNumber, getPatternDisplayName, getDefaultPatternForRound } from '../lib/bingoEngine';
+import { sounds, speakBingoCallout, getActiveVoiceName } from '../lib/audio';
+import { shareInvite, openWhatsAppDirect } from '../lib/share';
+import { BingoBall3D } from './BingoBall3D';
+import { RecentBallsHistory } from './RecentBallsHistory';
+import { WinnerCeremonyModal } from './WinnerCeremonyModal';
+import { GameChat } from './chat/GameChat';
+import { triggerVictoryCelebration } from '../lib/celebration';
 import { 
   Play, 
   Pause, 
   Share2, 
-  RotateCcw, 
   Volume2, 
   VolumeX, 
-  Trophy,
   ArrowLeft,
-  Sparkles
+  UserCheck,
+  Check,
+  RotateCcw,
+  Target
 } from 'lucide-react';
 
 interface BingoHostViewProps {
   room: Room;
   onLeave: () => void;
-  onNextRound: () => void;
+  onNextRound?: () => void;
 }
 
 export const BingoHostView: React.FC<BingoHostViewProps> = ({
   room,
   onLeave,
-  onNextRound,
 }) => {
   const [isAutoDrawing, setIsAutoDrawing] = useState(false);
   const [speechEnabled, setSpeechEnabled] = useState(true);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showCeremonyModal, setShowCeremonyModal] = useState(true);
+  const [callerVoiceGender, setCallerVoiceGender] = useState<'female' | 'male'>(
+    room.config.callerVoiceGender || 'female'
+  );
+
+  useEffect(() => {
+    if (room.config.callerVoiceGender) {
+      setCallerVoiceGender(room.config.callerVoiceGender);
+    }
+  }, [room.config.callerVoiceGender]);
 
   const lastNumber = room.lastDrawnNumber;
   const lastLetter = lastNumber ? getLetterForNumber(lastNumber) : null;
   const drawnSet = new Set(room.drawnNumbers);
 
-  // Announce ball via SpeechSynthesis
-  const speakNumber = (letter: string, num: number) => {
-    if (!speechEnabled || typeof window === 'undefined' || !window.speechSynthesis) return;
-    try {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(`${letter}... ${num}`);
-      utterance.lang = 'es-LA';
-      utterance.rate = 0.9;
-      window.speechSynthesis.speak(utterance);
-    } catch {}
+  // Announce ball via Venezuelan Cantadera speech
+  const announceBall = (letter: string, num: number) => {
+    if (!speechEnabled) return;
+    speakBingoCallout(letter, num, callerVoiceGender);
   };
 
   const handleManualDraw = async () => {
@@ -52,8 +61,30 @@ export const BingoHostView: React.FC<BingoHostViewProps> = ({
     const num = await drawNextBall(room);
     if (num) {
       const letter = getLetterForNumber(num);
-      speakNumber(letter, num);
+      announceBall(letter, num);
     }
+  };
+
+  const handleVoiceGenderChange = async (gender: 'female' | 'male') => {
+    setCallerVoiceGender(gender);
+    // Instant test preview so the host hears the change immediately!
+    speakBingoCallout('B', 12, gender);
+    await updateCallerVoiceGender(room.id, gender);
+  };
+
+  const handlePatternChange = async (newPattern: BingoWinningPattern) => {
+    await updateRoomWinningPattern(room.id, newPattern);
+  };
+
+  const handleStartNextRound = async (nextPattern?: BingoWinningPattern) => {
+    const patternToUse = nextPattern || getDefaultPatternForRound(room.currentRound + 1);
+    await startNextRound(room.id, room.currentRound, patternToUse);
+    setShowCeremonyModal(false);
+  };
+
+  const handleFinishRoom = async () => {
+    await finishRoom(room.id);
+    onLeave();
   };
 
   // Auto-drawing timer
@@ -65,7 +96,7 @@ export const BingoHostView: React.FC<BingoHostViewProps> = ({
         const num = await drawNextBall(room);
         if (num) {
           const letter = getLetterForNumber(num);
-          speakNumber(letter, num);
+          announceBall(letter, num);
         } else {
           setIsAutoDrawing(false);
         }
@@ -74,25 +105,34 @@ export const BingoHostView: React.FC<BingoHostViewProps> = ({
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isAutoDrawing, room]);
+  }, [isAutoDrawing, room, speechEnabled, callerVoiceGender]);
 
-  // Confetti when BINGO is won
+  // Grand victory celebration when BINGO is won (Applause, Fireworks, Confetti, Vibration)
   useEffect(() => {
-    if (room.status === 'FINISHED' && room.winnerUserName) {
-      sounds.playBingoFanfare();
-      confetti({
-        particleCount: 120,
-        spread: 80,
-        origin: { y: 0.6 },
-      });
+    if (room.status === 'FINISHED') {
+      setIsAutoDrawing(false);
+      setShowCeremonyModal(true);
+      if (room.winnerUserName) {
+        triggerVictoryCelebration();
+      }
     }
   }, [room.status, room.winnerUserName]);
 
-  // WhatsApp share link
-  const handleShareWhatsApp = () => {
+  // Multiplatform share link (Phone: App Picker sheet / PC: Copy to Clipboard)
+  const handleShare = async () => {
     const url = `${window.location.origin}?pin=${room.pinCode}`;
-    const text = `¡Únete a la partida de Bingo en Vivo! 🎱\nSala: ${room.title}\nCódigo PIN: *${room.pinCode}*\nEntra a jugar aquí: ${url}`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+    const text = `¡Únete a la partida de Bingo en Vivo! 🎱\nSala: ${room.title}\nCódigo PIN: *${room.pinCode}*\nEntra a jugar aquí:`;
+
+    const res = await shareInvite({
+      title: `Únete a ${room.title} en TuPartida`,
+      text,
+      url,
+    });
+
+    if (res.method === 'clipboard' && res.success) {
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
   };
 
   const handleCopyPin = () => {
@@ -107,13 +147,13 @@ export const BingoHostView: React.FC<BingoHostViewProps> = ({
       <div className="flex items-center justify-between bg-[#171f33] border border-white/10 rounded-2xl p-3 shadow-md">
         <button 
           onClick={onLeave}
-          className="flex items-center gap-1 text-xs text-[#c7c4d8] hover:text-white font-semibold"
+          className="flex items-center gap-1 text-xs text-[#c7c4d8] hover:text-white font-semibold transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Salir</span>
         </button>
 
-        {/* PIN Code Box */}
+        {/* PIN Code Box & Multiplatform Share */}
         <div className="flex items-center gap-2">
           <button
             onClick={handleCopyPin}
@@ -124,12 +164,14 @@ export const BingoHostView: React.FC<BingoHostViewProps> = ({
               {copiedLink ? '¡Copiado!' : 'Copiar'}
             </span>
           </button>
+          
           <button
-            onClick={handleShareWhatsApp}
-            className="p-2 rounded-xl bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-600/50"
-            title="Compartir por WhatsApp"
+            onClick={handleShare}
+            className="p-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 border border-emerald-500/40 text-white hover:from-emerald-500 hover:to-teal-500 shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1"
+            title="Compartir sala (WhatsApp, Telegram, etc.)"
           >
-            <Share2 className="w-4 h-4" />
+            {copiedLink ? <Check className="w-4 h-4" /> : <Share2 className="w-4 h-4" />}
+            <span className="text-[10px] font-bold hidden sm:inline">Compartir</span>
           </button>
         </div>
 
@@ -147,58 +189,75 @@ export const BingoHostView: React.FC<BingoHostViewProps> = ({
         </button>
       </div>
 
-      {/* Winner Alert Modal */}
-      {room.status === 'FINISHED' && (
-        <div className="bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-amber-500/20 border-2 border-amber-400 rounded-3xl p-5 text-center shadow-2xl flex flex-col items-center gap-3 animate-pulse">
-          <div className="w-14 h-14 rounded-2xl bg-amber-400 text-black flex items-center justify-center text-3xl shadow-lg shadow-amber-400/40">
-            🏆
-          </div>
-          <div>
-            <span className="text-xs uppercase font-extrabold text-amber-300 tracking-wider">
-              ¡TENEMOS GANADOR DE LA RONDA!
-            </span>
-            <h2 className="text-2xl font-black text-white font-['Outfit']">
-              {room.winnerUserName || 'Un afortunado jugador'}
-            </h2>
-            <p className="text-xs text-[#c7c4d8] mt-0.5">
-              ¡Ha cantado y verificado BINGO con éxito!
-            </p>
-          </div>
+      {/* Voice Gender Selector for Cantadera (Hombre vs Mujer) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-[#171f33] border border-white/10 rounded-2xl px-4 py-2.5 shadow-sm gap-2">
+        <div className="flex items-center gap-1.5 text-xs text-[#c7c4d8]">
+          <UserCheck className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+          <span className="font-semibold">Voz de la Cantadera:</span>
+          <span className="text-[10px] text-zinc-500 hidden sm:inline">
+            ({getActiveVoiceName(callerVoiceGender)})
+          </span>
+        </div>
+        <div className="flex items-center gap-1 bg-[#0b1326] p-1 rounded-xl border border-white/5 self-end sm:self-auto">
           <button
-            onClick={onNextRound}
-            className="mt-1 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-zinc-950 font-bold text-xs shadow-lg shadow-amber-500/30 flex items-center gap-1.5"
+            onClick={() => handleVoiceGenderChange('female')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+              callerVoiceGender === 'female'
+                ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md'
+                : 'text-zinc-400 hover:text-white'
+            }`}
           >
-            <RotateCcw className="w-4 h-4" />
-            <span>Iniciar Siguiente Ronda</span>
+            👩 Cantadora
+          </button>
+          <button
+            onClick={() => handleVoiceGenderChange('male')}
+            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+              callerVoiceGender === 'male'
+                ? 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white shadow-md'
+                : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            👨 Cantador
           </button>
         </div>
-      )}
+      </div>
 
-      {/* Large Bombo / Current Ball Display */}
+      {/* Large Bombo / Current 3D Ball Display with Pop Animation */}
       <div className="bg-gradient-to-b from-[#171f33] to-[#0b1326] border border-white/10 rounded-3xl p-6 text-center shadow-xl flex flex-col items-center relative overflow-hidden">
-        <div className="absolute top-3 left-4 text-[11px] font-bold text-indigo-300 uppercase tracking-wider">
-          Ronda {room.currentRound} • {room.config.winningPattern}
+        <div className="absolute top-3 left-4 text-[11px] font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5 z-10">
+          <span>Ronda {room.currentRound}</span>
+          <span>•</span>
+          <select
+            value={room.config.winningPattern}
+            onChange={(e) => handlePatternChange(e.target.value as BingoWinningPattern)}
+            className="bg-[#0b1326] border border-indigo-500/40 text-amber-300 text-[10px] rounded-lg px-2 py-0.5 font-bold cursor-pointer hover:border-indigo-400 focus:outline-none"
+            title="Cambiar patrón ganador de la ronda"
+          >
+            <option value="LINE">1. Líneas (H/V)</option>
+            <option value="DIAGONAL">2. Diagonales (X)</option>
+            <option value="FOUR_CORNERS">3. 4 Esquinas</option>
+            <option value="FULL_HOUSE">4. Cartón Lleno</option>
+          </select>
         </div>
         <div className="absolute top-3 right-4 text-[11px] text-[#c7c4d8]">
           {room.drawnNumbers.length} / 75 Bolas
         </div>
 
-        {/* Ball Sphere Visual */}
+        {/* 3D Ball Sphere Visual with Key for Re-triggering Pop */}
         <div className="my-3 relative flex items-center justify-center">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 via-indigo-600 to-indigo-900 border-4 border-white/20 shadow-[0_0_40px_rgba(79,70,229,0.5)] flex flex-col items-center justify-center text-white">
+          <div key={lastNumber || 'ready'} className="animate-ball-pop flex items-center justify-center">
             {lastNumber ? (
-              <>
-                <span className="text-xs font-black tracking-widest text-amber-300">
-                  {lastLetter}
-                </span>
-                <span className="text-5xl font-black font-['Space_Grotesk'] leading-none">
-                  {lastNumber}
-                </span>
-              </>
+              <BingoBall3D 
+                number={lastNumber} 
+                letter={lastLetter || undefined} 
+                size="xl" 
+                isLatest={true} 
+              />
             ) : (
-              <span className="text-xs text-indigo-200 font-semibold">
-                ¡Listo para girar!
-              </span>
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-950 via-[#171f33] to-[#0b1326] border-4 border-dashed border-indigo-500/30 flex flex-col items-center justify-center text-indigo-200">
+                <span className="text-2xl mb-1">🎱</span>
+                <span className="text-xs font-bold text-indigo-200">¡Listo para girar!</span>
+              </div>
             )}
           </div>
         </div>
@@ -228,11 +287,14 @@ export const BingoHostView: React.FC<BingoHostViewProps> = ({
         </div>
       </div>
 
+      {/* Sequential History Strip of recent drawn balls */}
+      <RecentBallsHistory drawnNumbers={room.drawnNumbers} />
+
       {/* 1-75 Master Board Grid */}
       <div className="bg-[#171f33] border border-white/10 rounded-3xl p-4 shadow-lg flex flex-col gap-2">
         <div className="flex items-center justify-between text-xs font-bold text-[#c7c4d8] px-1">
           <span>Tablero Maestro (1-75)</span>
-          <span className="text-indigo-300">
+          <span className="text-indigo-300 font-['Space_Grotesk']">
             {75 - room.drawnNumbers.length} restantes
           </span>
         </div>
@@ -275,6 +337,27 @@ export const BingoHostView: React.FC<BingoHostViewProps> = ({
           );
         })}
       </div>
+
+      {/* Winner Ceremony Modal for Host */}
+      {room.status === 'FINISHED' && showCeremonyModal && (
+        <WinnerCeremonyModal
+          room={room}
+          isHost={true}
+          onNextRound={handleStartNextRound}
+          onClose={() => setShowCeremonyModal(false)}
+          onFinishGame={handleFinishRoom}
+        />
+      )}
+
+      {/* Real-time Room Chat for Host */}
+      <GameChat
+        roomId={room.id}
+        userId={room.hostId}
+        userName={room.hostName || 'Anfitrión'}
+        isHost={true}
+        chatEnabled={room.config.chatEnabled !== false}
+        voiceNotesEnabled={room.config.voiceNotesEnabled !== false}
+      />
     </div>
   );
 };

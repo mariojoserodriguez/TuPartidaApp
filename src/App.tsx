@@ -15,7 +15,9 @@ import {
   getRoomByPin, 
   subscribeToRoom, 
   subscribeToPlayerCards, 
-  generatePlayerCards 
+  subscribeToHostedRooms,
+  generatePlayerCards,
+  getPlayerCards 
 } from './lib/roomService';
 import { Header } from './components/Header';
 import { HubMenu } from './components/HubMenu';
@@ -37,6 +39,7 @@ export function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('HUB');
   const [activeRoom, setActiveRoom] = useState<Room | null>(null);
   const [playerCards, setPlayerCards] = useState<BingoCard[]>([]);
+  const [hostedRooms, setHostedRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorToast, setErrorToast] = useState<string | null>(null);
 
@@ -91,6 +94,15 @@ export function App() {
     return () => unsub();
   }, [activeRoom?.id, user?.uid]);
 
+  // Subscribe to rooms created by this user
+  useEffect(() => {
+    if (!user?.uid) return;
+    const unsub = subscribeToHostedRooms(user.uid, (rooms) => {
+      setHostedRooms(rooms);
+    });
+    return () => unsub();
+  }, [user?.uid]);
+
   const handleSelectMarker = (marker: MarkerType) => {
     setSelectedMarker(marker);
     localStorage.setItem('tupartida_marker', marker);
@@ -115,9 +127,12 @@ export function App() {
       } else if (isHost) {
         setCurrentView('BINGO_HOST');
       } else {
-        // Check if player already has cards, if not generate 1
-        if (playerCards.length === 0 && user) {
-          await generatePlayerCards(room.id, user.uid, guestName, 1);
+        // Only generate card if player does not have any cards in this room
+        if (user) {
+          const existing = await getPlayerCards(room.id, user.uid);
+          if (existing.length === 0) {
+            await generatePlayerCards(room.id, user.uid, guestName, 1);
+          }
         }
         setCurrentView('BINGO_PLAYER');
       }
@@ -190,6 +205,7 @@ export function App() {
         guestName={guestName}
         selectedMarker={selectedMarker}
         onSelectMarker={handleSelectMarker}
+        onUpdateGuestName={(name) => setGuestName(name)}
         onLogin={loginWithGoogle}
         onLogout={logoutUser}
         onGoHome={() => setCurrentView('HUB')}
@@ -209,6 +225,15 @@ export function App() {
         {currentView === 'HUB' && (
           <HubMenu
             userName={user?.displayName || guestName}
+            hostedRooms={hostedRooms}
+            onSelectHostedRoom={(room) => {
+              setActiveRoom(room);
+              if (room.gameType === 'RAFFLE') {
+                setCurrentView('RAFFLE');
+              } else {
+                setCurrentView('BINGO_HOST');
+              }
+            }}
             onJoinByPin={handleJoinByPin}
             onCreateRoom={handleCreateRoom}
             onSelectGameDirect={(type) => {

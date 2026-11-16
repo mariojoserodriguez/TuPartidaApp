@@ -9,7 +9,8 @@ import {
   updateDoc, 
   onSnapshot, 
   arrayUnion,
-  addDoc
+  addDoc,
+  deleteField
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { 
@@ -38,6 +39,7 @@ export async function createRoom(params: {
   title: string;
   cardsPolicy?: BingoCardsPolicy;
   winningPattern?: BingoWinningPattern;
+  callerVoiceGender?: 'female' | 'male';
   pricePerCard?: number;
   targetAmount?: number;
   causeDescription?: string;
@@ -59,6 +61,7 @@ export async function createRoom(params: {
     config: {
       cardsPolicy: params.cardsPolicy || 'REUSABLE',
       winningPattern: params.winningPattern || 'LINE',
+      callerVoiceGender: params.callerVoiceGender || 'female',
       pricePerCard: params.pricePerCard || 0,
       targetAmount: params.targetAmount || 0,
       causeDescription: params.causeDescription || '',
@@ -81,6 +84,22 @@ export async function getRoomByPin(pin: string): Promise<Room | null> {
   if (snap.empty) return null;
   const docSnap = snap.docs[0];
   return { id: docSnap.id, ...docSnap.data() } as Room;
+}
+
+/**
+ * Real-time listener for rooms hosted by the user
+ */
+export function subscribeToHostedRooms(userId: string, onUpdate: (rooms: Room[]) => void) {
+  const q = query(collection(db, 'rooms'), where('hostId', '==', userId));
+  return onSnapshot(q, (snapshot) => {
+    const rooms: Room[] = [];
+    snapshot.forEach((doc) => {
+      rooms.push({ id: doc.id, ...doc.data() } as Room);
+    });
+    // Sort by createdAt descending
+    rooms.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    onUpdate(rooms);
+  });
 }
 
 /**
@@ -133,23 +152,46 @@ export async function generatePlayerCards(
   const cards: BingoCard[] = [];
   const cardsCol = collection(db, 'rooms', roomId, 'cards');
 
+  // Query existing cards count so card numbers are sequential (#1, #2, #3...)
+  const existingSnap = await getDocs(
+    query(cardsCol, where('userId', '==', userId))
+  );
+  const existingCount = existingSnap.size;
+
   for (let i = 0; i < count; i++) {
     const cardData: Omit<BingoCard, 'id'> = {
       roomId,
       userId,
       userName,
-      cardIndex: i + 1,
+      cardIndex: existingCount + i + 1,
       matrix: generateBingoMatrix(),
-      marked: Array(5).fill(null).map(() => Array(5).fill(false)),
+      marked: Array(25).fill(false),
       isWinner: false,
     };
-    // Center is free
-    cardData.marked[2][2] = true;
+    // Center is free (index 12: row 2, col 2)
+    cardData.marked[12] = true;
 
     const docRef = await addDoc(cardsCol, cardData);
     cards.push({ id: docRef.id, ...cardData });
   }
 
+  return cards;
+}
+
+/**
+ * Gets existing cards for a player in a room
+ */
+export async function getPlayerCards(roomId: string, userId: string): Promise<BingoCard[]> {
+  const q = query(
+    collection(db, 'rooms', roomId, 'cards'),
+    where('userId', '==', userId)
+  );
+  const snap = await getDocs(q);
+  const cards: BingoCard[] = [];
+  snap.forEach((doc) => {
+    cards.push({ id: doc.id, ...doc.data() } as BingoCard);
+  });
+  cards.sort((a, b) => a.cardIndex - b.cardIndex);
   return cards;
 }
 
@@ -194,7 +236,7 @@ export async function claimBingo(
   if (!verification.isWinner) {
     return { 
       success: false, 
-      message: '¡Atención! Aún no completas el patrón de la ronda. Revisa bien las balotas cantadas.' 
+      message: '¡Atención! Aún no completas el patrón de la ronda. Revisa bien las bolas cantadas.' 
     };
   }
 
@@ -210,4 +252,66 @@ export async function claimBingo(
     success: true, 
     message: `¡BINGO VÁLIDO! ${card.userName} ha ganado la ronda.` 
   };
+}
+
+/**
+ * Updates caller voice gender (female vs male)
+ */
+export async function updateCallerVoiceGender(
+  roomId: string, 
+  callerVoiceGender: 'female' | 'male'
+): Promise<void> {
+  const roomRef = doc(db, 'rooms', roomId);
+  await updateDoc(roomRef, {
+    'config.callerVoiceGender': callerVoiceGender,
+  });
+}
+
+/**
+ * Updates winning pattern for the room
+ */
+export async function updateRoomWinningPattern(
+  roomId: string,
+  winningPattern: BingoWinningPattern
+): Promise<void> {
+  const roomRef = doc(db, 'rooms', roomId);
+  await updateDoc(roomRef, {
+    'config.winningPattern': winningPattern,
+  });
+}
+
+/**
+ * Advances to the next round in the room, resetting the bombo
+ * and optionally setting the new winning pattern
+ */
+export async function startNextRound(
+  roomId: string, 
+  currentRound: number,
+  winningPattern?: BingoWinningPattern
+): Promise<void> {
+  const roomRef = doc(db, 'rooms', roomId);
+  const updateData: Record<string, unknown> = {
+    currentRound: currentRound + 1,
+    drawnNumbers: [],
+    lastDrawnNumber: deleteField(),
+    status: 'LOBBY',
+    winnerUserId: deleteField(),
+    winnerUserName: deleteField(),
+  };
+
+  if (winningPattern) {
+    updateData['config.winningPattern'] = winningPattern;
+  }
+
+  await updateDoc(roomRef, updateData);
+}
+
+/**
+ * Closes / marks room game session as finished
+ */
+export async function finishRoom(roomId: string): Promise<void> {
+  const roomRef = doc(db, 'rooms', roomId);
+  await updateDoc(roomRef, {
+    status: 'FINISHED',
+  });
 }

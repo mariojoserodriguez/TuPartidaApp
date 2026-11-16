@@ -1,18 +1,22 @@
 import React, { useState } from 'react';
-import { GameMode, GameType, BingoWinningPattern, BingoCardsPolicy } from '../types';
+import { Room, GameMode, GameType, BingoWinningPattern, BingoCardsPolicy } from '../types';
+import { shareInvite } from '../lib/share';
 import { 
   Sparkles, 
   Users, 
   HeartHandshake, 
   Ticket, 
   Plus, 
-  ArrowRight,
-  Hash,
-  Play
+  ArrowRight, 
+  Hash, 
+  Play,
+  Share2
 } from 'lucide-react';
 
 interface HubMenuProps {
   userName: string;
+  hostedRooms?: Room[];
+  onSelectHostedRoom?: (room: Room) => void;
   onJoinByPin: (pin: string) => void;
   onCreateRoom: (params: {
     title: string;
@@ -29,6 +33,8 @@ interface HubMenuProps {
 
 export const HubMenu: React.FC<HubMenuProps> = ({
   userName,
+  hostedRooms = [],
+  onSelectHostedRoom,
   onJoinByPin,
   onCreateRoom,
   onSelectGameDirect,
@@ -160,6 +166,83 @@ export const HubMenu: React.FC<HubMenuProps> = ({
           </button>
         </form>
       </section>
+
+      {/* 2.5. Hosted Rooms (Mis Partidas Creadas) */}
+      {hostedRooms && hostedRooms.length > 0 && (
+        <section className="flex flex-col gap-2.5">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span>Tus Partidas Creadas ({hostedRooms.length})</span>
+            </span>
+            <span className="text-[10px] text-[#c7c4d8]">Toca para gestionar como Anfitrión</span>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            {hostedRooms.map((room) => (
+              <div
+                key={room.id}
+                onClick={() => onSelectHostedRoom && onSelectHostedRoom(room)}
+                className="group flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-[#171f33] to-[#222a3d] border border-emerald-500/30 hover:border-emerald-400 cursor-pointer transition-all shadow-md active:scale-[0.99]"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-indigo-600 flex items-center justify-center text-xl shadow-md">
+                    {room.gameType === 'BINGO' ? '🎱' : '🎟️'}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-bold text-white font-['Outfit']">{room.title}</h4>
+                      <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${
+                        room.status === 'PLAYING'
+                          ? 'bg-emerald-500/20 text-emerald-300'
+                          : room.status === 'FINISHED'
+                          ? 'bg-amber-500/20 text-amber-300'
+                          : 'bg-indigo-500/20 text-indigo-300'
+                      }`}>
+                        {room.status === 'PLAYING' ? 'EN VIVO' : room.status === 'FINISHED' ? 'FINALIZADA' : 'SALA DE ESPERA'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5 text-[11px] text-[#c7c4d8]">
+                      <span className="font-['Space_Grotesk'] text-indigo-300 font-bold">PIN: {room.pinCode}</span>
+                      <span>•</span>
+                      <span>{room.mode === 'AMISTOSO' ? 'Amistoso' : 'Pro-Fondos'}</span>
+                      {room.gameType === 'BINGO' && (
+                        <>
+                          <span>•</span>
+                          <span>Ronda {room.currentRound} ({room.drawnNumbers.length} bolas)</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      const url = `${window.location.origin}?pin=${room.pinCode}`;
+                      const text = `¡Únete a mi partida de Bingo en TuPartida! 🎱\nSala: ${room.title}\nPIN: *${room.pinCode}*\nEntra aquí:`;
+                      await shareInvite({
+                        title: `Únete a ${room.title}`,
+                        text,
+                        url,
+                      });
+                    }}
+                    title="Compartir sala"
+                    className="p-2 rounded-xl bg-white/5 hover:bg-emerald-600/30 text-[#c7c4d8] hover:text-emerald-300 transition-colors"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                  </button>
+                  <div className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center gap-1 group-hover:bg-emerald-500 transition-all">
+                    <span>Entrar</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 3. Game Catalog */}
       <section className="flex flex-col gap-3">
@@ -307,9 +390,10 @@ export const HubMenu: React.FC<HubMenuProps> = ({
                         onChange={(e) => setWinningPattern(e.target.value as BingoWinningPattern)}
                         className="w-full mt-1 bg-[#0b1326] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
                       >
-                        <option value="LINE">Cualquier Línea</option>
-                        <option value="FOUR_CORNERS">Cuatro Esquinas</option>
-                        <option value="FULL_HOUSE">Cartón Lleno</option>
+                        <option value="LINE">1. Líneas (Horizontal/Vertical)</option>
+                        <option value="DIAGONAL">2. Diagonales (X)</option>
+                        <option value="FOUR_CORNERS">3. Cuatro Esquinas</option>
+                        <option value="FULL_HOUSE">4. Cartón Lleno</option>
                       </select>
                     </div>
                     <div>

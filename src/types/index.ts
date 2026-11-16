@@ -2,7 +2,7 @@ export type GameType = 'BINGO' | 'RAFFLE' | 'DOMINO' | 'LUDO' | 'CHESS';
 export type GameMode = 'AMISTOSO' | 'PRO_FONDOS';
 export type MarkerType = 'CARAOTA' | 'MAIZ' | 'LENTEJA' | 'NEON';
 export type RoomStatus = 'LOBBY' | 'PLAYING' | 'PAUSED' | 'FINISHED';
-export type BingoWinningPattern = 'LINE' | 'FOUR_CORNERS' | 'FULL_HOUSE';
+export type BingoWinningPattern = 'LINE' | 'DIAGONAL' | 'FOUR_CORNERS' | 'FULL_HOUSE';
 export type BingoCardsPolicy = 'REUSABLE' | 'DISPOSABLE';
 
 export interface MarkerConfig {
@@ -72,6 +72,9 @@ export interface Room {
     };
     cardsPolicy: BingoCardsPolicy;
     winningPattern: BingoWinningPattern;
+    callerVoiceGender?: 'female' | 'male';
+    chatEnabled?: boolean;
+    voiceNotesEnabled?: boolean;
   };
   currentRound: number;
   drawnNumbers: number[];
@@ -80,14 +83,30 @@ export interface Room {
   winnerUserName?: string;
 }
 
+export type ChatMessageType = 'text' | 'sticker' | 'audio';
+
+export interface ChatMessage {
+  id: string;
+  roomId: string;
+  userId: string;
+  userName: string;
+  type: ChatMessageType;
+  text?: string;
+  mediaUrl?: string;
+  audioData?: string;
+  audioDuration?: number;
+  createdAt: number;
+  system?: boolean;
+}
+
 export interface BingoCard {
   id: string;
   roomId: string;
   userId: string;
   userName: string;
   cardIndex: number;
-  matrix: number[][]; // 5x5 numbers, 0 at center (2,2)
-  marked: boolean[][]; // 5x5 booleans
+  matrix: number[]; // Flat 25 numbers (row * 5 + col), 0 at center (index 12)
+  marked: boolean[]; // Flat 25 booleans (row * 5 + col)
   isWinner: boolean;
 }
 
